@@ -1,6 +1,5 @@
+import 'package:dashboard/views/auth/login.dart';
 import 'package:flutter/material.dart';
-
-import 'auth/login.dart';
 
 
 void main() {

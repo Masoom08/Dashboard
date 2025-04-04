@@ -1,4 +1,4 @@
-import 'package:dashboard/screens/dashboard/sidebar.dart';
+import 'package:dashboard/views/dashboard/sidebar.dart';
 import 'package:dashboard/theme/colors.dart';
 import 'package:flutter/material.dart';
 

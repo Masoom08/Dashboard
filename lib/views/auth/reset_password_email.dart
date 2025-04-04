@@ -1,11 +1,11 @@
-import 'package:dashboard/auth/reset_password_email.dart';
+import 'package:dashboard/views/auth/reset_password_new.dart';
 import 'package:flutter/material.dart';
 
-import '../screens/dashboard/dashboard.dart';
-import '../theme/colors.dart';
+import '../../theme/colors.dart';
 
-class LoginScreen extends StatelessWidget {
-  const LoginScreen({super.key});
+
+class ResetPasswordEmail extends StatelessWidget {
+  const ResetPasswordEmail({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -24,11 +24,10 @@ class LoginScreen extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      //const Icon(Icons.handshake, size: 40, color: AppColors.primaryBlue),
                       Image.asset('assets/health.png',width: 60, height: 60,),
                       const SizedBox(height: 20),
                       const Text(
-                        'Log in to your Account',
+                        'Reset your Password',
                         style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 20),
@@ -40,27 +39,6 @@ class LoginScreen extends StatelessWidget {
                           filled: true,
                         ),
                       ),
-                      const SizedBox(height: 15),
-                      TextField(
-                        obscureText: true,
-                        decoration: InputDecoration(
-                          labelText: 'Enter your password',
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                          fillColor: Colors.grey[200],
-                          filled: true,
-                          suffixIcon: Icon(Icons.visibility),
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => const ResetPasswordEmail()),
-                          );
-                        },
-                        child: const Text('Forgot Password?'),
-                      ),
                       const SizedBox(height: 20),
                       SizedBox(
                         width: double.infinity,
@@ -69,13 +47,13 @@ class LoginScreen extends StatelessWidget {
                           onPressed: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => const DashboardScreen()),
+                              MaterialPageRoute(builder: (context) => const ResetPasswordNew()),
                             );
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blue,
+                            backgroundColor: AppColors.primaryBlue,
                           ),
-                          child: const Text('Login', style: TextStyle(color: Colors.white)),
+                          child: const Text('Send', style: TextStyle(color: Colors.white)),
                         ),
                       ),
                     ],

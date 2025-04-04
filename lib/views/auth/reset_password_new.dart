@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import '../screens/dashboard/dashboard.dart';
-import '../theme/colors.dart';
+import '../../theme/colors.dart';
 import 'login.dart';
 
 class ResetPasswordNew extends StatelessWidget {
