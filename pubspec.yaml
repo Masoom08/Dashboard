@@ -28,7 +28,7 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
-  fl_chart: ^0.63.0
+  fl_chart: ^0.70.2
   flutter:
     sdk: flutter
 
@@ -62,6 +62,7 @@ flutter:
   assets:
      - assets/img_1.png
      - assets/img_2.png
+     - assets/health.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

@@ -1,7 +1,15 @@
 import 'package:flutter/material.dart';
 import '../../theme/colors.dart';
+import 'Annoucement.dart';
 
-class Sidebar extends StatelessWidget {
+class Sidebar extends StatefulWidget {
+  @override
+  _SidebarState createState() => _SidebarState();
+}
+
+class _SidebarState extends State<Sidebar> {
+  int selectedIndex = -1; // Track selected index (-1 means none selected)
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -9,19 +17,37 @@ class Sidebar extends StatelessWidget {
       color: AppColors.primaryBlue,
       child: Column(
         children: [
-          SizedBox(height: 20), // Add spacing from top
-          IconButton(icon: const Icon(Icons.volunteer_activism, color: Colors.white), onPressed: () {},),
           SizedBox(height: 20),
-          Icon(Icons.dashboard, color: Colors.white, size: 32),
+          buildIconButton(Icons.volunteer_activism, 0),
           SizedBox(height: 20),
-          Icon(Icons.message, color: Colors.white, size: 32),
+          buildIconButton(Icons.dashboard, 1),
           SizedBox(height: 20),
-          IconButton(icon: const Icon(Icons.campaign, color: Colors.white), onPressed: () {},),
+          buildIconButton(Icons.message, 2),
+          SizedBox(height: 20),
+          buildIconButton(Icons.campaign, 3, onPressed: () {
+            navigateToAnnouncement(context);
+          }),
           Spacer(),
-          Icon(Icons.logout, color: Colors.white, size: 32),
+          buildIconButton(Icons.logout, 4),
           SizedBox(height: 20),
         ],
       ),
+    );
+  }
+
+  Widget buildIconButton(IconData icon, int index, {VoidCallback? onPressed}) {
+    return IconButton(
+      icon: Icon(
+        icon,
+        color: selectedIndex == index ? Colors.white : Colors.white60, // Change color on selection
+      ),
+      iconSize: 32,
+      onPressed: () {
+        setState(() {
+          selectedIndex = index;
+        });
+        if (onPressed != null) onPressed();
+      },
     );
   }
 }
