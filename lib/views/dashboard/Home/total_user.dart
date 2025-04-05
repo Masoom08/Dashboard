@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../theme/colors.dart';
+import '../../../theme/colors.dart';
 
 class TotalUsersCard extends StatelessWidget {
   @override
@@ -136,11 +136,11 @@ class TotalUsersCard extends StatelessWidget {
                 SizedBox(height: 8),
                 Row(
                   children: [
-                    Icon(Icons.circle, size: 12, color: AppColors.green),
+                    Icon(Icons.circle, size: 12, color: AppColors.Green),
                     SizedBox(width: 4),
                     Text("Active: 8,500", style: TextStyle(fontSize: 14, color: AppColors.grey)),
                     SizedBox(width: 16),
-                    Icon(Icons.circle, size: 12, color: AppColors.red),
+                    Icon(Icons.circle, size: 12, color: AppColors.Red),
                     SizedBox(width: 4),
                     Text("Inactive: 1,750", style: TextStyle(fontSize: 14, color: AppColors.grey)),
                   ],

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../viewmodels/call_viewmodel.dart';
+import '../../viewmodels/call_viewmodel.dart';
 
+/*
 class CallScreen extends StatelessWidget {
   final String channelId;
 
@@ -32,3 +32,5 @@ class CallScreen extends StatelessWidget {
     );
   }
 }
+
+ */

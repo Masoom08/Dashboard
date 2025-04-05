@@ -2,13 +2,26 @@ import 'package:dashboard/views/dashboard/sidebar.dart';
 import 'package:dashboard/theme/colors.dart';
 import 'package:flutter/material.dart';
 
-class AnnouncementScreen extends StatelessWidget {
+class AnnouncementScreen extends StatefulWidget {
+  @override
+  _AnnouncementScreenState createState() => _AnnouncementScreenState();
+}
+
+class _AnnouncementScreenState extends State<AnnouncementScreen> {
+  int selectedIndex = 3; // Active index for Announcement
+
+  void updateIndex(int index) {
+    setState(() {
+      selectedIndex = index;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Row(
         children: [
-          Sidebar(), // Assuming Sidebar is already implemented
+          Sidebar(selectedIndex: selectedIndex, onItemSelected: updateIndex),
           Expanded(
             child: Column(
               children: [
@@ -59,7 +72,7 @@ class AnnouncementScreen extends StatelessWidget {
                               ),
                               const SizedBox(height: 10),
                               Container(
-                                height: 500,
+                                height: 400,
                                 decoration: BoxDecoration(
                                   color: Colors.grey[200],
                                   borderRadius: BorderRadius.circular(8),

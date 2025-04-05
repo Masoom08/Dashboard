@@ -1,7 +1,8 @@
+import 'package:dashboard/theme/colors.dart';
 import 'package:dashboard/views/auth/reset_password_email.dart';
 import 'package:flutter/material.dart';
 
-import '../dashboard/dashboard.dart';
+import '../dashboard/Home/dashboard.dart';
 
 
 
@@ -74,7 +75,7 @@ class LoginScreen extends StatelessWidget {
                             );
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.blue,
+                            backgroundColor: AppColors.primaryBlue,
                           ),
                           child: const Text('Login', style: TextStyle(color: Colors.white)),
                         ),

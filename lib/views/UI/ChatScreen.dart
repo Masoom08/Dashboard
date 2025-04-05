@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../viewmodels/chat_viewmodel.dart';
 
-
+/*
 class ChatScreen extends StatelessWidget {
   final String userId;
   final String doctorId;
@@ -42,3 +42,4 @@ class ChatScreen extends StatelessWidget {
     );
   }
 }
+*/

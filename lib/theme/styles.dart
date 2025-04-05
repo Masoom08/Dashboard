@@ -53,7 +53,7 @@ class AppButtonStyles {
   );
 
   static ButtonStyle dangerButton = ElevatedButton.styleFrom(
-    backgroundColor: AppColors.red,
+    backgroundColor: AppColors.Red,
     padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(8),

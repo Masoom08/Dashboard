@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../viewmodels/doctor_viewmodel.dart';
-
+import '../../viewmodels/doctor_viewmodel.dart';
+/*
 class DoctorProfileScreen extends StatelessWidget {
   final String userId;
 
@@ -37,3 +36,5 @@ class DoctorProfileScreen extends StatelessWidget {
     );
   }
 }
+
+ */

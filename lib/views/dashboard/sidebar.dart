@@ -1,14 +1,19 @@
 import 'package:flutter/material.dart';
 import '../../theme/colors.dart';
+import '../auth/login.dart';
 import 'Annoucement.dart';
+import 'Home/dashboard.dart';
+import 'doctor/consultant_requests.dart';
 
-class Sidebar extends StatefulWidget {
-  @override
-  _SidebarState createState() => _SidebarState();
-}
+class Sidebar extends StatelessWidget {
+  final int selectedIndex;
+  final Function(int) onItemSelected;
 
-class _SidebarState extends State<Sidebar> {
-  int selectedIndex = -1; // Track selected index (-1 means none selected)
+  const Sidebar({
+    super.key,
+    required this.selectedIndex,
+    required this.onItemSelected,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -17,36 +22,93 @@ class _SidebarState extends State<Sidebar> {
       color: AppColors.primaryBlue,
       child: Column(
         children: [
-          SizedBox(height: 20),
-          buildIconButton(Icons.volunteer_activism, 0),
-          SizedBox(height: 20),
-          buildIconButton(Icons.dashboard, 1),
-          SizedBox(height: 20),
-          buildIconButton(Icons.message, 2),
-          SizedBox(height: 20),
-          buildIconButton(Icons.campaign, 3, onPressed: () {
-            navigateToAnnouncement(context);
-          }),
-          Spacer(),
-          buildIconButton(Icons.logout, 4),
-          SizedBox(height: 20),
+          const SizedBox(height: 20),
+          buildIconButton(Icons.volunteer_activism, 0, context, screen: ConsultantRequestsScreen()),
+          const SizedBox(height: 20),
+          buildIconButton(Icons.dashboard, 1, context, screen: DashboardScreen()),
+          const SizedBox(height: 20),
+          buildIconButton(Icons.message_rounded, 2, context),
+          const SizedBox(height: 20),
+          buildIconButton(Icons.campaign, 3, context, screen: AnnouncementScreen()),
+          const Spacer(),
+          buildLogoutButton(context), // ✅ Logout Button
+          const SizedBox(height: 20),
         ],
       ),
     );
   }
 
-  Widget buildIconButton(IconData icon, int index, {VoidCallback? onPressed}) {
+  Widget buildIconButton(IconData icon, int index, BuildContext context, {Widget? screen}) {
     return IconButton(
       icon: Icon(
         icon,
-        color: selectedIndex == index ? Colors.white : Colors.white60, // Change color on selection
+        color: selectedIndex == index ? Colors.white : Colors.white60,
       ),
       iconSize: 32,
       onPressed: () {
-        setState(() {
-          selectedIndex = index;
-        });
-        if (onPressed != null) onPressed();
+        if (selectedIndex != index) {
+          onItemSelected(index);
+          if (screen != null) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => screen),
+            );
+          }
+        }
+      },
+    );
+  }
+
+  Widget buildLogoutButton(BuildContext context) {
+    return IconButton(
+      icon: const Icon(Icons.logout, color: Colors.white60),
+      iconSize: 32,
+      onPressed: () => showLogoutDialog(context), // ✅ Show Logout Dialog
+    );
+  }
+
+  void showLogoutDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("You want to logout?"),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16), // ✅ Rounded Corners
+          ),
+          actions: [
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primaryBlue, // ✅ Blue Background
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+              ),
+              onPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => LoginScreen()), // ✅ Navigate to Login
+                );
+              },
+              child: const Text("Yes", style: TextStyle(color: Colors.white)), // ✅ White Text
+            ),
+            OutlinedButton(
+              style: OutlinedButton.styleFrom(
+                side: BorderSide(color: AppColors.primaryBlue), // ✅ Blue Outline
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 24),
+              ),
+              onPressed: () {
+                Navigator.pop(context); // ❌ Stay on Dashboard
+              },
+              child: Text("No", style: TextStyle(color: AppColors.primaryBlue)), // ✅ Blue Text
+            ),
+
+          ],
+        );
       },
     );
   }
