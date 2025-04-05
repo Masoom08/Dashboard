@@ -30,7 +30,13 @@ class ConsultantRequestsScreen extends StatelessWidget {
         ),
         body: Row(
           children: [
-            Sidebar(selectedIndex: 1, onItemSelected: (index) {}), // ✅ Using existing Sidebar
+            // 🔧 Changed selectedIndex from 1 ➜ 0
+            Sidebar(
+              selectedIndex: 0,
+              onItemSelected: (index) {
+                // Add screen navigation logic here if needed
+              },
+            ),
             Expanded(child: ConsultantRequestsList()),
           ],
         ),
@@ -67,7 +73,7 @@ class ConsultantRequestsList extends StatelessWidget {
               return DoctorCard(doctor: doctorVM.doctors[index]);
             },
           )
-              : const Center(child: Text("No doctors available.")), // ✅ Empty state handling
+              : const Center(child: Text("No doctors available.")),
         ),
         PaginationControls(
           currentPage: doctorVM.currentPage,

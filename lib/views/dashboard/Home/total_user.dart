@@ -1,9 +1,43 @@
+import 'package:dashboard/views/dashboard/Home/total_user_full.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../../models/doctor.dart';
 import '../../../theme/colors.dart';
+import '../../../viewmodels/doctor_viewmodel.dart';
 
-class TotalUsersCard extends StatelessWidget {
+class TotalUsersCard extends StatefulWidget {
+
+  @override
+  _TotalUsersCardState createState() => _TotalUsersCardState();
+}
+
+class _TotalUsersCardState extends State<TotalUsersCard> {
+  bool _showMore = false;
+
   @override
   Widget build(BuildContext context) {
+    final doctorViewModel = Provider.of<DoctorViewModel>(context);
+    final doctors = doctorViewModel.doctors;
+    final filteredOrthos = doctorViewModel.getFilteredDoctors("Orthopedics");
+    final filteredCardios = doctorViewModel.getFilteredDoctors("Cardiology");
+
+    final List<String> baseCategories = [
+      "Doctors",
+      "Orthopedics",
+      "Cardiology",
+      "Dentists",
+    ];
+
+    final List<String> extraCategories = [
+      "Ayurveda",
+      "Unani",
+      "Veterinary",
+      "General Physician",
+    ];
+
+    final categories =
+    _showMore ? [...baseCategories, ...extraCategories] : baseCategories;
+
     return Card(
       color: Colors.white,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -17,8 +51,9 @@ class TotalUsersCard extends StatelessWidget {
               borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
             ),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start, // Aligns text to the left
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Top Row
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -28,128 +63,115 @@ class TotalUsersCard extends StatelessWidget {
                     ),
                     ElevatedButton(
                       onPressed: () {},
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        foregroundColor: AppColors.primaryBlue,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                        padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                      ),
                       child: Text("Clients"),
+                      style: _filterBtnStyle,
                     ),
-                    //SizedBox(width: 8),
                     ElevatedButton(
                       onPressed: () {},
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        foregroundColor: AppColors.primaryBlue,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      ),
                       child: Text("Consultants"),
+                      style: _filterBtnStyle,
                     ),
-                    Text(
-                      "Full Screen",
-                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => TotalUserScreen()),
+                        );
+                      },
+                      child: Text(
+                        "Full Screen",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w500,
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
                     ),
-                    //Icon(Icons.people, size: 32, color: Colors.white),
                   ],
                 ),
                 SizedBox(height: 8),
-                Text(
-                  "Doctors : 1,000",
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
-                ),
-                SizedBox(height: 8),
-                Text(
-                  "Orthopedics : 1,000",
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
-                ),
-                SizedBox(height: 10), // Space before the button
-
-                // Second Row: Doctors Button
-                ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: AppColors.primaryBlue,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  ),
-                  child: Text("Doctors"),
-                ),
+                Text("Doctors : ${doctors.length}",
+                    style: _whiteTextStyle),
+                Text("Orthopedics : ${filteredOrthos.length}",
+                    style: _whiteTextStyle),
+                Text("Cardiology : ${filteredCardios.length}",
+                    style: _whiteTextStyle),
                 SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: AppColors.primaryBlue,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  ),
-                  child: Text("Orthopedics"),
-                ),
-                ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: AppColors.primaryBlue,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  ),
-                  child: Text("Dentists"),
-                ),
-                ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: AppColors.primaryBlue,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  ),
-                  child: Text("Cardiologists"),
-                ),
-                Text(
-                  "Show more",
-                  style: TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
+
+                /// Filters
+                Wrap(
+                  spacing: 10,
+                  runSpacing: 8,
+                  children: [
+                    ...categories.map((category) => _categoryButton(context, category)),
+                    TextButton(
+                      onPressed: () {
+                        setState(() {
+                          _showMore = !_showMore;
+                        });
+                      },
+                      child: Text(
+                        _showMore ? "Show Less ▲" : "Show More ▼",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ],
                 ),
               ],
-            ),
-           ],
             ),
           ),
 
-          // Spacing & Content Below Header
+          // List of Filtered Doctors
           Padding(
-            padding: EdgeInsets.all(16),
+            padding: const EdgeInsets.all(12.0),
             child: Column(
-              children: [
-                Row(
-                  children: [
-                    Text("10,250", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
-                    Spacer(),
-                    Icon(Icons.people, size: 32, color: AppColors.primaryBlue),
-                  ],
-                ),
-                SizedBox(height: 8),
-                Row(
-                  children: [
-                    Icon(Icons.circle, size: 12, color: AppColors.Green),
-                    SizedBox(width: 4),
-                    Text("Active: 8,500", style: TextStyle(fontSize: 14, color: AppColors.grey)),
-                    SizedBox(width: 16),
-                    Icon(Icons.circle, size: 12, color: AppColors.Red),
-                    SizedBox(width: 4),
-                    Text("Inactive: 1,750", style: TextStyle(fontSize: 14, color: AppColors.grey)),
-                  ],
-                ),
-              ],
+              children: doctorViewModel.selectedCategory.isEmpty
+                  ? doctors
+                  .map((doc) => _buildDoctorTile(doc))
+                  .toList()
+                  : doctorViewModel
+                  .getFilteredDoctors(doctorViewModel.selectedCategory)
+                  .map((doc) => _buildDoctorTile(doc))
+                  .toList(),
             ),
           ),
         ],
       ),
     );
   }
+
+  ElevatedButton _categoryButton(BuildContext context, String category) {
+    final doctorViewModel = Provider.of<DoctorViewModel>(context, listen: false);
+    return ElevatedButton(
+      onPressed: () {
+        doctorViewModel.setCategory(
+            category == "Doctors" ? '' : category); // Reset if "Doctors"
+      },
+      style: _filterBtnStyle,
+      child: Text(category),
+    );
+  }
+
+  Widget _buildDoctorTile(Doctor doctor) {
+    return ListTile(
+      contentPadding: EdgeInsets.symmetric(vertical: 6),
+      leading: CircleAvatar(backgroundImage: NetworkImage(doctor.profilePicUrl)),
+      title: Text(doctor.name),
+      subtitle: Text("${doctor.profession} • ${doctor.state}"),
+      trailing: Icon(Icons.arrow_forward_ios_rounded, size: 18),
+    );
+  }
+
+  final ButtonStyle _filterBtnStyle = ElevatedButton.styleFrom(
+    backgroundColor: Colors.white,
+    foregroundColor: AppColors.primaryBlue,
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+  );
+
+  final TextStyle _whiteTextStyle = TextStyle(
+    fontSize: 16,
+    fontWeight: FontWeight.bold,
+    color: Colors.white,
+  );
 }

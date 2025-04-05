@@ -1,6 +1,6 @@
-import 'package:dashboard/views/dashboard/sidebar.dart';
-import 'package:dashboard/theme/colors.dart';
 import 'package:flutter/material.dart';
+import 'package:dashboard/theme/colors.dart';
+import 'package:dashboard/views/dashboard/sidebar.dart';
 
 class AnnouncementScreen extends StatefulWidget {
   @override
@@ -13,30 +13,57 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
   void updateIndex(int index) {
     setState(() {
       selectedIndex = index;
+      // Optional: Navigate to a different screen based on index
+      // if (index != 3) Navigator.push(...);
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.softWhite,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        title: Text(
+          selectedIndex == 3 ? "Announcements" : "Dashboard",
+          style: const TextStyle(
+            color: Colors.black,
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        actions: const [
+          Padding(
+            padding: EdgeInsets.only(right: 16.0),
+            child: CircleAvatar(
+              radius: 20,
+              backgroundImage: NetworkImage(
+                "https://randomuser.me/api/portraits/men/1.jpg",
+              ),
+            ),
+          ),
+        ],
+      ),
       body: Row(
         children: [
-          Sidebar(selectedIndex: selectedIndex, onItemSelected: updateIndex),
+          Sidebar(
+            selectedIndex: selectedIndex,
+            onItemSelected: updateIndex,
+          ),
           Expanded(
             child: Column(
               children: [
                 Container(
                   padding: EdgeInsets.all(16),
                   color: Colors.white,
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      "Message To All Users",
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
-                      ),
+                  width: double.infinity,
+                  child: const Text(
+                    "Message To All Users",
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
                     ),
                   ),
                 ),
@@ -61,7 +88,7 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 padding: const EdgeInsets.all(8.0),
-                                child: TextField(
+                                child: const TextField(
                                   maxLines: null,
                                   decoration: InputDecoration(
                                     hintText: "Title",
@@ -78,7 +105,7 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 padding: const EdgeInsets.all(8.0),
-                                child: TextField(
+                                child: const TextField(
                                   maxLines: null,
                                   decoration: InputDecoration(
                                     hintText: "Write Paragraph Here!",
@@ -114,12 +141,4 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
       ),
     );
   }
-}
-
-// Integrate this into your Dashboard
-void navigateToAnnouncement(BuildContext context) {
-  Navigator.push(
-    context,
-    MaterialPageRoute(builder: (context) => AnnouncementScreen()),
-  );
 }

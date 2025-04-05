@@ -39,9 +39,26 @@ class Sidebar extends StatelessWidget {
   }
 
   Widget buildIconButton(IconData icon, int index, BuildContext context, {Widget? screen}) {
+    IconData finalIcon;
+
+    // Choose icon variant for consultant (index 0) when selected
+    if (index == 0) {
+      finalIcon = selectedIndex == index
+          ? Icons.volunteer_activism // Filled when selected
+          : Icons.volunteer_activism_outlined; // Outlined when not selected
+    } else if (index == 1) {
+      finalIcon = selectedIndex == index ? Icons.dashboard : Icons.dashboard_outlined;
+    } else if (index == 2) {
+      finalIcon = selectedIndex == index ? Icons.message_rounded : Icons.message_outlined;
+    } else if (index == 3) {
+      finalIcon = selectedIndex == index ? Icons.campaign : Icons.campaign_outlined;
+    } else {
+      finalIcon = icon;
+    }
+
     return IconButton(
       icon: Icon(
-        icon,
+        finalIcon,
         color: selectedIndex == index ? Colors.white : Colors.white60,
       ),
       iconSize: 32,
@@ -58,6 +75,7 @@ class Sidebar extends StatelessWidget {
       },
     );
   }
+
 
   Widget buildLogoutButton(BuildContext context) {
     return IconButton(
