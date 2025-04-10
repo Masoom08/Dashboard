@@ -82,7 +82,7 @@ class DoctorViewModel extends ChangeNotifier {
         name: "Dr. Anjali Verma",
         email: "anjali.verma@example.com",
         gender: "Female",
-        profilePicUrl: "https://randomuser.me/api/portraits/women/2.jpg",
+        profilePicUrl: "assets/img.png",
         profession: "Cardiologist",
         state: "Delhi",
         departments: ["Cardiology"],
@@ -100,6 +100,7 @@ class DoctorViewModel extends ChangeNotifier {
         userId: "123456",
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
+        phone: "+91-9876543210",
       ),
       Doctor(
         name: "Dr. Ramesh Kapoor",
@@ -123,6 +124,7 @@ class DoctorViewModel extends ChangeNotifier {
         userId: "654321",
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
+        phone: "+91-9123456789",
       ),
     ];
   }

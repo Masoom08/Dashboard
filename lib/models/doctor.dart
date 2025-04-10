@@ -20,6 +20,7 @@ class Doctor {
   final String userId;
   final DateTime createdAt;
   final DateTime updatedAt;
+  final String phone;
 
   Doctor({
     required this.name,
@@ -43,6 +44,7 @@ class Doctor {
     required this.userId,
     required this.createdAt,
     required this.updatedAt,
+    required this.phone,
   });
 
   // ✅ Factory method to create a Doctor from JSON
@@ -69,6 +71,7 @@ class Doctor {
       userId: json['userId'] ?? '',
       createdAt: DateTime.tryParse(json['createdAt'] ?? '') ?? DateTime.now(),
       updatedAt: DateTime.tryParse(json['updatedAt'] ?? '') ?? DateTime.now(),
+      phone: json['phone'] ?? '',
     );
   }
 
@@ -96,6 +99,7 @@ class Doctor {
       'userId': userId,
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
+      'phone': phone,
     };
   }
 }
