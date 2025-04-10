@@ -22,123 +22,144 @@ class _TotalUsersCardState extends State<TotalUsersCard> {
     final filteredCardios = doctorViewModel.getFilteredDoctors("Cardiology");
 
     final List<String> baseCategories = [
-      "Doctors",
-      "Orthopedics",
-      "Cardiology",
-      "Dentists",
+      "Doctors", "Orthopedics", "Cardiology", "Dentists"
     ];
-
     final List<String> extraCategories = [
-      "Ayurveda",
-      "Unani",
-      "Veterinary",
-      "General Physician",
+      "Ayurveda", "Unani", "Veterinary", "General Physician"
     ];
+    final categories = _showMore ? [...baseCategories, ...extraCategories] : baseCategories;
 
-    final categories =
-    _showMore ? [...baseCategories, ...extraCategories] : baseCategories;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        bool isSmall = constraints.maxWidth < 500;
 
-    return Card(
-      color: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: AppColors.primaryBlue,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Top Row
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        return Card(
+          color: Colors.white,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Header Section
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColors.primaryBlue,
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      "Total Users : 10,000",
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
-                    ),
-                    ElevatedButton(
-                      onPressed: () {},
-                      child: Text("Clients"),
-                      style: _filterBtnStyle,
-                    ),
-                    ElevatedButton(
-                      onPressed: () {},
-                      child: Text("Consultants"),
-                      style: _filterBtnStyle,
-                    ),
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => TotalUserScreen()),
-                        );
-                      },
-                      child: Text(
-                        "Full Screen",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w500,
-                          decoration: TextDecoration.underline,
+                    // Responsive Top Row
+                    isSmall
+                        ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text("Total Users : 10,000", style: _whiteTextStyle),
+                        const SizedBox(height: 8),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: [
+                            ElevatedButton(onPressed: () {}, child: Text("Clients"), style: _filterBtnStyle),
+                            ElevatedButton(onPressed: () {}, child: Text("Consultants"), style: _filterBtnStyle),
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => TotalUserScreen()),
+                                );
+                              },
+                              child: const Text(
+                                "Full Screen",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w500,
+                                  decoration: TextDecoration.underline,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
+                      ],
+                    )
+                        : Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text("Total Users : 10,000", style: _whiteTextStyle),
+                        Row(
+                          children: [
+                            ElevatedButton(onPressed: () {}, child: Text("Clients"), style: _filterBtnStyle),
+                            const SizedBox(width: 8),
+                            ElevatedButton(onPressed: () {}, child: Text("Consultants"), style: _filterBtnStyle),
+                            const SizedBox(width: 12),
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => TotalUserScreen()),
+                                );
+                              },
+                              child: const Text(
+                                "Full Screen",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w500,
+                                  decoration: TextDecoration.underline,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Text("Doctors : ${doctors.length}", style: _whiteTextStyle),
+                    Text("Orthopedics : ${filteredOrthos.length}", style: _whiteTextStyle),
+                    Text("Cardiology : ${filteredCardios.length}", style: _whiteTextStyle),
+                    const SizedBox(height: 10),
+
+                    // Category Filters
+                    Wrap(
+                      spacing: 10,
+                      runSpacing: 8,
+                      children: [
+                        ...categories.map((category) => _categoryButton(context, category)),
+                        TextButton(
+                          onPressed: () {
+                            setState(() {
+                              _showMore = !_showMore;
+                            });
+                          },
+                          child: Text(
+                            _showMore ? "Show Less ▲" : "Show More ▼",
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-                SizedBox(height: 8),
-                Text("Doctors : ${doctors.length}",
-                    style: _whiteTextStyle),
-                Text("Orthopedics : ${filteredOrthos.length}",
-                    style: _whiteTextStyle),
-                Text("Cardiology : ${filteredCardios.length}",
-                    style: _whiteTextStyle),
-                SizedBox(height: 10),
+              ),
 
-                /// Filters
-                Wrap(
-                  spacing: 10,
-                  runSpacing: 8,
-                  children: [
-                    ...categories.map((category) => _categoryButton(context, category)),
-                    TextButton(
-                      onPressed: () {
-                        setState(() {
-                          _showMore = !_showMore;
-                        });
-                      },
-                      child: Text(
-                        _showMore ? "Show Less ▲" : "Show More ▼",
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  ],
+              // Filtered List
+              Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Column(
+                  children: doctorViewModel.selectedCategory.isEmpty
+                      ? doctors.map((doc) => _buildDoctorTile(doc)).toList()
+                      : doctorViewModel
+                      .getFilteredDoctors(doctorViewModel.selectedCategory)
+                      .map((doc) => _buildDoctorTile(doc))
+                      .toList(),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
-
-          // List of Filtered Doctors
-          Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: Column(
-              children: doctorViewModel.selectedCategory.isEmpty
-                  ? doctors
-                  .map((doc) => _buildDoctorTile(doc))
-                  .toList()
-                  : doctorViewModel
-                  .getFilteredDoctors(doctorViewModel.selectedCategory)
-                  .map((doc) => _buildDoctorTile(doc))
-                  .toList(),
-            ),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
+
 
   ElevatedButton _categoryButton(BuildContext context, String category) {
     final doctorViewModel = Provider.of<DoctorViewModel>(context, listen: false);

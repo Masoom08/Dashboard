@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../theme/colors.dart';
 import '../auth/login.dart';
 import 'Annoucement.dart';
+import 'Home/Feedback.dart';
 import 'Home/dashboard.dart';
 import 'doctor/consultant_requests.dart';
 
@@ -27,7 +28,7 @@ class Sidebar extends StatelessWidget {
           const SizedBox(height: 20),
           buildIconButton(Icons.dashboard, 1, context, screen: DashboardScreen()),
           const SizedBox(height: 20),
-          buildIconButton(Icons.message_rounded, 2, context),
+          buildIconButton(Icons.message_rounded, 2, context,screen: FeedbackScreen()),
           const SizedBox(height: 20),
           buildIconButton(Icons.campaign, 3, context, screen: AnnouncementScreen()),
           const Spacer(),
