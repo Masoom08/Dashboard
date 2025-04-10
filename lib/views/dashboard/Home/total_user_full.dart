@@ -362,7 +362,7 @@ class _TotalUserScreenState extends State<TotalUserScreen> {
           Image.network(
             doc.profilePicUrl ?? "https://via.placeholder.com/150",
             height: 200,
-            width: 200,.3`
+            width: 200,
             fit: BoxFit.cover,
           ),
         ],

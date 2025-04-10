@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class Doctor {
   final String name;
   final String email;
@@ -7,7 +9,8 @@ class Doctor {
   final String state;
   final List<String> departments;
   final List<String> languages;
-  final int experience;
+  final String experience;
+  final String isSurgeonString; // e.g., "Yes" / "No"
   final bool isSurgeon;
   final bool isOnline;
   final bool isLoggedIn;
@@ -32,6 +35,7 @@ class Doctor {
     required this.departments,
     required this.languages,
     required this.experience,
+    required this.isSurgeonString,
     required this.isSurgeon,
     required this.isOnline,
     required this.isLoggedIn,
@@ -47,58 +51,70 @@ class Doctor {
     required this.phone,
   });
 
-  // ✅ Factory method to create a Doctor from JSON
-  factory Doctor.fromJson(Map<String, dynamic> json) {
+  factory Doctor.fromMap(Map<String, dynamic> json) {
     return Doctor(
       name: json['name'] ?? '',
       email: json['email'] ?? '',
       gender: json['gender'] ?? '',
-      profilePicUrl: json['profilePicUrl'] ?? '',
+      profilePicUrl: json['profileImage'] ?? json['profile_pic_url'] ?? '',
       profession: json['profession'] ?? '',
       state: json['state'] ?? '',
       departments: List<String>.from(json['departments'] ?? []),
       languages: List<String>.from(json['languages'] ?? []),
-      experience: json['experience'] ?? 0,
-      isSurgeon: json['isSurgeon'] ?? false,
-      isOnline: json['isOnline'] ?? false,
-      isLoggedIn: json['isLoggedIn'] ?? false,
-      isTermsAgreed: json['isTermsAgreed'] ?? false,
-      isDeleted: json['isDeleted'] ?? false,
-      registrationStatus: json['registrationStatus'] ?? '',
-      educationDocUrl: json['educationDocUrl'] ?? '',
-      medicalProofUrl: json['medicalProofUrl'] ?? '',
-      idUrl: json['idUrl'] ?? '',
-      userId: json['userId'] ?? '',
-      createdAt: DateTime.tryParse(json['createdAt'] ?? '') ?? DateTime.now(),
-      updatedAt: DateTime.tryParse(json['updatedAt'] ?? '') ?? DateTime.now(),
+      experience: json['experience']?.toString() ?? '0', // safe string cast
+      isSurgeonString: json['isSurgeon']?.toString() ?? '',
+      isSurgeon: _parseBool(json['is_surgeon']), // actual bool
+      isOnline: _parseBool(json['is_online']),
+      isLoggedIn: _parseBool(json['is_logged_in']),
+      isTermsAgreed: _parseBool(json['is_terms_agreed']),
+      isDeleted: _parseBool(json['is_deleted']),
+      registrationStatus: json['registration_status'] ?? '',
+      educationDocUrl: json['education_doc_url'] ?? '',
+      medicalProofUrl: json['medical_proof_url'] ?? '',
+      idUrl: json['id_url'] ?? '',
+      userId: json['user_id'] ?? '',
+      createdAt: _parseDate(json['created_at']),
+      updatedAt: _parseDate(json['updated_at']),
       phone: json['phone'] ?? '',
     );
   }
 
-  // ✅ Method to convert a Doctor object to JSON
-  Map<String, dynamic> toJson() {
+  static bool _parseBool(dynamic value) {
+    if (value is bool) return value;
+    if (value is String) return value.toLowerCase() == 'true';
+    return false;
+  }
+
+  static DateTime _parseDate(dynamic value) {
+    if (value is Timestamp) return value.toDate();
+    if (value is String) return DateTime.tryParse(value) ?? DateTime.now();
+    return DateTime.now();
+  }
+
+  Map<String, dynamic> toMap() {
     return {
       'name': name,
       'email': email,
       'gender': gender,
-      'profilePicUrl': profilePicUrl,
+      'profile_pic_url': profilePicUrl,
       'profession': profession,
       'state': state,
       'departments': departments,
       'languages': languages,
       'experience': experience,
-      'isSurgeon': isSurgeon,
-      'isOnline': isOnline,
-      'isLoggedIn': isLoggedIn,
-      'isTermsAgreed': isTermsAgreed,
-      'isDeleted': isDeleted,
-      'registrationStatus': registrationStatus,
-      'educationDocUrl': educationDocUrl,
-      'medicalProofUrl': medicalProofUrl,
-      'idUrl': idUrl,
-      'userId': userId,
-      'createdAt': createdAt.toIso8601String(),
-      'updatedAt': updatedAt.toIso8601String(),
+      'isSurgeon': isSurgeonString,
+      'is_surgeon': isSurgeon,
+      'is_online': isOnline,
+      'is_logged_in': isLoggedIn,
+      'is_terms_agreed': isTermsAgreed,
+      'is_deleted': isDeleted,
+      'registration_status': registrationStatus,
+      'education_doc_url': educationDocUrl,
+      'medical_proof_url': medicalProofUrl,
+      'id_url': idUrl,
+      'user_id': userId,
+      'created_at': createdAt,
+      'updated_at': updatedAt,
       'phone': phone,
     };
   }

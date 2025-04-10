@@ -1,29 +1,15 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../models/doctor.dart';
 
 class DoctorRepository {
-  final String baseUrl = "https://your-api-url.com"; // API ka actual URL yahan dalna
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  Future<Map<String, dynamic>> fetchDoctors(int page) async {
-    try {
-      final response = await http.get(Uri.parse("$baseUrl/doctors?page=$page"));
+  Future<List<Doctor>> fetchDoctorsFromFirestore() async {
+    final snapshot = await _firestore.collection('doctors').get();
 
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-
-        List<Doctor> doctors = (data['doctors'] as List).map((doc) => Doctor.fromJson(doc)).toList();
-        int totalPages = data['totalPages'];
-
-        return {
-          'doctors': doctors,
-          'totalPages': totalPages,
-        };
-      } else {
-        throw Exception("Failed to load doctors: ${response.statusCode}");
-      }
-    } catch (e) {
-      throw Exception("Error fetching doctors: ${e.toString()}");
-    }
+    return snapshot.docs.map((doc) {
+      final data = doc.data();
+      return Doctor.fromMap(data);
+    }).toList();
   }
 }
