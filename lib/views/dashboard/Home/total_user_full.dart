@@ -30,9 +30,13 @@ class _TotalUserScreenState extends State<TotalUserScreen> {
     "Neurologists",
     "Show more"
   ];
+  final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _paragraphController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+
     return ChangeNotifierProvider(
       create: (_) => DoctorViewModel()..fetchDoctors(),
       child: Scaffold(
@@ -104,6 +108,78 @@ class _TotalUserScreenState extends State<TotalUserScreen> {
           ],
         ),
       ],
+    );
+  }
+  void _showSuccessDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (_) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+        insetPadding: const EdgeInsets.symmetric(horizontal: 40),
+        backgroundColor: Colors.transparent,
+        child: Container(
+          width: 300,
+          height: 250,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(30),
+          ),
+          child: Stack(
+            children: [
+              Center(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      // Green glowing circle with check icon
+                      Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: const RadialGradient(
+                            colors: [
+                              Color(0xCCB2FF59),
+                              Color(0xFF00E676),
+                            ],
+                            radius: 0.85,
+                          ),
+                        ),
+                        padding: const EdgeInsets.all(20),
+                        child: const Icon(
+                          Icons.check,
+                          color: Colors.white,
+                          size: 40,
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      const Text(
+                        "Letter Sended",
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: Color(0xFF333333),
+                          fontWeight: FontWeight.w600,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              // Close button inside the box
+              Positioned(
+                top: 12,
+                right: 12,
+                child: GestureDetector(
+                  onTap: () => Navigator.of(context).pop(),
+                  child: const Icon(Icons.close, color: Colors.black, size: 24),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -276,13 +352,17 @@ class _TotalUserScreenState extends State<TotalUserScreen> {
                         if (value == 'Block') {
                           showDialog(
                             context: context,
-                            builder: (_) => _buildBlockDialog(
-                                context, doc.name, doc.profession),
+                            builder: (_) => _buildBlockDialog(context, doc.name, doc.profession),
                           );
                         } else if (value == 'View Documents') {
                           showDialog(
                             context: context,
                             builder: (_) => _buildViewDocumentDialog(doc),
+                          );
+                        } else if (value == 'Warn') {
+                          showDialog(
+                            context: context,
+                            builder: (_) => _buildWarnDialog(context),
                           );
                         }
                       },
@@ -296,6 +376,7 @@ class _TotalUserScreenState extends State<TotalUserScreen> {
                         }).toList();
                       },
                     ),
+
                   ),
                 ],
               );
@@ -349,6 +430,82 @@ class _TotalUserScreenState extends State<TotalUserScreen> {
       ),
     );
   }
+
+  Widget _buildWarnDialog(BuildContext context) {
+    return AlertDialog(
+      backgroundColor: Colors.white,
+      title: const Text(
+        'Message To All Users',
+        style: TextStyle(fontWeight: FontWeight.bold),
+      ),
+      content: SizedBox(
+        width: double.maxFinite,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                padding: const EdgeInsets.all(8.0),
+                child: TextField(
+                  controller: _titleController,
+                  maxLines: null,
+                  decoration: const InputDecoration(
+                    hintText: "Title",
+                    border: InputBorder.none,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              Container(
+                height: 200,
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                padding: const EdgeInsets.all(8.0),
+                child: TextField(
+                  controller: _paragraphController,
+                  maxLines: null,
+                  decoration: const InputDecoration(
+                    hintText: "Write Paragraph Here!",
+                    border: InputBorder.none,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text("Cancel"),
+        ),
+        ElevatedButton(
+          onPressed: () {
+            final title = _titleController.text.trim();
+            final paragraph = _paragraphController.text.trim();
+
+            if (title.isNotEmpty && paragraph.isNotEmpty) {
+              Navigator.of(context).pop(); // Close the warn dialog
+              _showSuccessDialog(context); // Show the success dialog
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text("Please fill both fields")),
+              );
+            }
+          },
+          child: const Text("Send"),
+        ),
+      ],
+    );
+  }
+
+
 
   Widget _buildViewDocumentDialog(Doctor doc) {
     return AlertDialog(

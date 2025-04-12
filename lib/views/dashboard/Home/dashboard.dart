@@ -26,132 +26,158 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        title: Text(
-          selectedIndex == 3 ? "Announcements" : "Dashboard",
-          style: const TextStyle(
-              color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold),
-        ),
-        actions: [
-          const Padding(
-            padding: EdgeInsets.only(right: 16.0),
-            child: CircleAvatar(
-              radius: 20,
-              backgroundImage: NetworkImage(
-                "https://randomuser.me/api/portraits/men/1.jpg",
-              ),
-            ),
-          ),
-        ],
-      ),
       backgroundColor: AppColors.softWhite,
       body: Row(
         children: [
+          // Sidebar - permanently fixed
           Sidebar(
             selectedIndex: selectedIndex,
             onItemSelected: onItemSelected,
           ),
+
+          // Main content
           Expanded(
-            child: selectedIndex == 3
-                ? AnnouncementScreen()
-                : SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  LayoutBuilder(
-                    builder: (context, constraints) {
-                      bool isSmallScreen = constraints.maxWidth < 700;
-                      return Column(
-                        children: [
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                flex: 2,
-                                child: SizedBox(
-                                  height: 240,
-                                  child: EarningsCard(),
-                                ),
-                              ),
-                              SizedBox(width: isSmallScreen ? 8 : 16),
-                              Expanded(
-                                flex: 3,
-                                child: ConsultantRequests(),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 16),
-                          Row(
-                            children: [
-                              Expanded(
-                                flex: 1,
-                                child: OverviewGraph(),
-                              ),
-                              SizedBox(width: isSmallScreen ? 8 : 16),
-                              Expanded(
-                                flex: 1,
-                                child: TotalUsersCard(),
-                              ),
-                            ],
-                          ),
-                        ],
-                      );
-                    },
+            child: Column(
+              children: [
+                // Custom Header
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black12,
+                        blurRadius: 4,
+                        offset: Offset(0, 2),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 24),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black12,
-                          blurRadius: 6,
-                          offset: Offset(0, 3),
+                  child: Row(
+                    children: [
+                      Text(
+                        selectedIndex == 3 ? "Announcements" : "Dashboard",
+                        style: const TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
                         ),
-                      ],
-                    ),
+                      ),
+                      Spacer(),
+                      const CircleAvatar(
+                        radius: 20,
+                        backgroundImage: NetworkImage(
+                          "https://randomuser.me/api/portraits/men/1.jpg",
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Main dashboard content
+                Expanded(
+                  child: selectedIndex == 3
+                      ? AnnouncementScreen()
+                      : SingleChildScrollView(
+                    padding: const EdgeInsets.all(24),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                          decoration: BoxDecoration(
-                            color: AppColors.primaryBlue,
-                            borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-                          ),
-                          child: const Text(
-                            "Users Demographics",
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+                        LayoutBuilder(
+                          builder: (context, constraints) {
+                            bool isSmallScreen = constraints.maxWidth < 700;
+                            return Column(
+                              children: [
+                                Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Expanded(
+                                      flex: 2,
+                                      child: SizedBox(
+                                        height: 240,
+                                        child: EarningsCard(),
+                                      ),
+                                    ),
+                                    SizedBox(width: isSmallScreen ? 8 : 24),
+                                    Expanded(
+                                      flex: 3,
+                                      child: ConsultantRequests(),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 24),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      flex: 1,
+                                      child: OverviewGraph(),
+                                    ),
+                                    SizedBox(width: isSmallScreen ? 8 : 24),
+                                    Expanded(
+                                      flex: 1,
+                                      child: TotalUsersCard(),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            );
+                          },
                         ),
-                        Padding(
-                          padding: const EdgeInsets.all(16),
+                        const SizedBox(height: 32),
+
+                        // User Demographics Section
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black12,
+                                blurRadius: 6,
+                                offset: Offset(0, 3),
+                              ),
+                            ],
+                          ),
                           child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              _buildBarRow("India", 0.65),
-                              _buildBarRow("Canada", 0.22),
-                              _buildBarRow("Australia", 0.14),
-                              _buildBarRow("United Kingdom", 0.03),
-                              _buildBarRow("United States", 0.08),
+                              Container(
+                                width: double.infinity,
+                                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                                decoration: BoxDecoration(
+                                  color: AppColors.primaryBlue,
+                                  borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                                ),
+                                child: const Text(
+                                  "Users Demographics",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: Column(
+                                  children: [
+                                    _buildBarRow("India", 0.65),
+                                    _buildBarRow("Canada", 0.22),
+                                    _buildBarRow("Australia", 0.14),
+                                    _buildBarRow("United Kingdom", 0.03),
+                                    _buildBarRow("United States", 0.08),
+                                  ],
+                                ),
+                              ),
                             ],
                           ),
                         ),
+
+                        const SizedBox(height: 40),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 40),
-
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ],
