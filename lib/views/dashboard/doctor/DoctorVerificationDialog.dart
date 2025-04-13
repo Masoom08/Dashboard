@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import '../../../models/doctor.dart';
 import '../../../theme/colors.dart';
 
 class DoctorVerificationDialog extends StatefulWidget {
+  final Doctor doctor;
+
+  DoctorVerificationDialog({required this.doctor});
+
   @override
   _DoctorVerificationDialogState createState() =>
       _DoctorVerificationDialogState();
@@ -77,24 +82,23 @@ class _DoctorVerificationDialogState extends State<DoctorVerificationDialog> {
                 )
               ],
             ),
-            // Profile Row
+            // Profile Row (dynamic)
             Row(
               children: [
                 CircleAvatar(
                   radius: 28,
-                  backgroundImage:
-                  AssetImage('assets/doctor_placeholder.png'),
+                  backgroundImage: NetworkImage(widget.doctor.profilePicUrl),
                 ),
                 SizedBox(width: 10),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text("Georgy Luchkin",
+                    Text(widget.doctor.name,
                         style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                             color: AppColors.black)),
-                    Text("(Orthopedics)",
+                    Text("(${widget.doctor.profession})",
                         style:
                         TextStyle(fontSize: 14, color: AppColors.grey)),
                   ],
@@ -136,7 +140,7 @@ class _DoctorVerificationDialogState extends State<DoctorVerificationDialog> {
                   child: buildImageCard(
                     title: "Identity Proof",
                     key: "identity",
-                    imagePath: 'assets/img.png',
+                    imagePath:'assets/img.png',
                   ),
                 ),
               ],
@@ -150,7 +154,8 @@ class _DoctorVerificationDialogState extends State<DoctorVerificationDialog> {
                   padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
                 ),
                 onPressed: () {
-                  // Final action
+                  updateStatus("final", "Accepted");
+                  Navigator.pop(context);
                 },
                 child: Text("Accept Applicant",
                     style: TextStyle(
@@ -228,7 +233,7 @@ class _DoctorVerificationDialogState extends State<DoctorVerificationDialog> {
                       InteractiveViewer(
                         minScale: 0.5,
                         maxScale: 4,
-                        child: Image.asset(imagePath, fit: BoxFit.contain),
+                        child: Image.network(imagePath, fit: BoxFit.contain),
                       ),
                       Positioned(
                         top: 10,
@@ -248,7 +253,7 @@ class _DoctorVerificationDialogState extends State<DoctorVerificationDialog> {
               child: SizedBox(
                 height: 80,
                 width: double.infinity,
-                child: Image.asset(imagePath, fit: BoxFit.cover),
+                child: Image.network(imagePath, fit: BoxFit.cover),
               ),
             ),
           ),

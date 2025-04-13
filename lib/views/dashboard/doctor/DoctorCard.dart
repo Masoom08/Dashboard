@@ -32,7 +32,7 @@ class DoctorCard extends StatelessWidget {
             showDialog(
               context: context,
               builder: (BuildContext context) {
-                return DoctorVerificationDialog();
+                return DoctorVerificationDialog(doctor: doctor);
               },
             );
           },

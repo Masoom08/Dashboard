@@ -1,4 +1,5 @@
 import 'package:dashboard/viewmodels/doctor_viewmodel.dart';
+import 'package:dashboard/viewmodels/user_viewmodel.dart';
 import 'package:dashboard/views/auth/login.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -23,6 +24,7 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => DoctorViewModel()),
+        ChangeNotifierProvider(create: (_) => UserViewModel()),
       ],
       child: const MyApp(),
     ),

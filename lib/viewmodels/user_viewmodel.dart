@@ -4,54 +4,43 @@ import '../repository/user_repository.dart';
 
 class UserViewModel extends ChangeNotifier {
   final UserRepository _repository = UserRepository();
-  UserModel? _user;
-  bool _isLoading = false;
 
+  UserModel? _user;
   UserModel? get user => _user;
+
+  bool _isLoading = false;
   bool get isLoading => _isLoading;
 
-  // Fetch user from Firebase
-  Future<void> fetchUser(String userId) async {
+  String? _errorMessage;
+  String? get errorMessage => _errorMessage;
+
+  Future<bool> login(String email, String password) async {
     _isLoading = true;
+    _errorMessage = null;
     notifyListeners();
 
+    print('🟡 Attempting login for email: $email');
+
     try {
-      _user = await _repository.getUser(userId);
+      final loggedInUser = await _repository.loginUser(email, password);
+
+      if (loggedInUser != null) {
+        _user = loggedInUser;
+        print('✅ Login successful for user: ${_user!.email}');
+        return true;
+      } else {
+        _errorMessage = "Invalid email or password";
+        print('❌ Login failed: Invalid credentials for $email');
+        return false;
+      }
     } catch (e) {
-      print("Error fetching user: $e");
-    }
-
-    _isLoading = false;
-    notifyListeners();
-  }
-
-  // Add a new user
-  Future<void> addUser(UserModel user) async {
-    try {
-      await _repository.addUser(user);
-    } catch (e) {
-      print("Error adding user: $e");
-    }
-  }
-
-  // Update user
-  Future<void> updateUser(String userId, Map<String, dynamic> updates) async {
-    try {
-      await _repository.updateUser(userId, updates);
-      fetchUser(userId); // Refresh data
-    } catch (e) {
-      print("Error updating user: $e");
-    }
-  }
-
-  // Delete user
-  Future<void> deleteUser(String userId) async {
-    try {
-      await _repository.deleteUser(userId);
-      _user = null;
+      _errorMessage = e.toString();
+      print('🔴 Exception during login: $e');
+      return false;
+    } finally {
+      _isLoading = false;
       notifyListeners();
-    } catch (e) {
-      print("Error deleting user: $e");
+      print('ℹ️ Login process completed');
     }
   }
 }

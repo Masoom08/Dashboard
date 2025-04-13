@@ -1,50 +1,39 @@
-
 import '../models/user.dart';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class UserRepository {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final CollectionReference usersCollection =
-  FirebaseFirestore.instance.collection('users');
 
-  // Add a new user
-  Future<void> addUser(UserModel user) async {
-    try {
-      await usersCollection.doc(user.userId).set(user.toMap());
-    } catch (e) {
-      throw Exception("Failed to add user: $e");
-    }
-  }
+  Future<UserModel?> loginUser(String email, String password) async {
+    print('🟡 Attempting login for email: $email');
 
-  // Get a user by ID
-  Future<UserModel?> getUser(String userId) async {
     try {
-      DocumentSnapshot doc = await usersCollection.doc(userId).get();
-      if (doc.exists) {
-        return UserModel.fromMap(doc.data() as Map<String, dynamic>);
+      final snapshot = await _firestore
+          .collection('users') // ✅ Ensure correct collection
+          .where('email', isEqualTo: email.trim())
+          .get();
+
+      if (snapshot.docs.isNotEmpty) {
+        final data = snapshot.docs.first.data();
+        final user = UserModel.fromMap(data);
+
+        print('✅ User found in Firestore: ${user.email}');
+        print('🔐 Firestore password: "${user.password}", Input password: "$password"');
+
+        if (user.password == password.trim()) {
+          print('✅ Password matched. Login successful for $email');
+          return user;
+        } else {
+          print('❌ Password mismatch for $email');
+        }
+      } else {
+        print('🚫 No user found with email: $email');
       }
+
       return null;
     } catch (e) {
-      throw Exception("Failed to get user: $e");
-    }
-  }
-
-  // Update user details
-  Future<void> updateUser(String userId, Map<String, dynamic> updates) async {
-    try {
-      await usersCollection.doc(userId).update(updates);
-    } catch (e) {
-      throw Exception("Failed to update user: $e");
-    }
-  }
-
-  // Soft delete a user
-  Future<void> deleteUser(String userId) async {
-    try {
-      await usersCollection.doc(userId).update({'is_deleted': true});
-    } catch (e) {
-      throw Exception("Failed to delete user: $e");
+      print('🔥 Exception during login: $e');
+      throw Exception('Login failed: $e');
     }
   }
 }
