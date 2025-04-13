@@ -5,7 +5,7 @@ class WalletService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   Future<List<Wallet>> fetchAllWallets() async {
-    final snapshot = await _firestore.collection('wallet').get();
+    final snapshot = await _firestore.collection('wallets').get();
 
     return snapshot.docs.map((doc) =>
         Wallet.fromMap(doc.data(), doc.id)
