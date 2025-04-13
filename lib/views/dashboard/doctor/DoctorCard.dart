@@ -15,16 +15,37 @@ class DoctorCard extends StatelessWidget {
       margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: ListTile(
         leading: CircleAvatar(
-          backgroundImage: NetworkImage(doctor.profilePicUrl),
+          radius: 25,
+          backgroundColor: Colors.grey[200],
+          child: doctor.profilePicUrl.isNotEmpty
+              ? ClipOval(
+            child: Image.network(
+              doctor.profilePicUrl,
+              fit: BoxFit.cover, // Ensures the image fits within the circle
+              width: 50, // Circle size
+              height: 50, // Circle size
+              loadingBuilder: (context, child, loadingProgress) {
+                if (loadingProgress == null) {
+                  return child;
+                } else {
+                  return Center(child: CircularProgressIndicator());
+                }
+              },
+              errorBuilder: (context, error, stackTrace) {
+                return Icon(Icons.person, color: Colors.grey[700]);
+              },
+            ),
+          )
+              : Icon(Icons.person, color: Colors.grey[700]),
         ),
-        title: Text(doctor.name, style: TextStyle(fontWeight: FontWeight.bold)),
+        title: Text(
+          doctor.name,
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-           // Text("📧 ${doctor.email}"),
-            Text(" ${doctor.profession}" " " "Doctor"),
-            //Text("📍 ${doctor.state}"),
-            //Text("🗣️ ${doctor.languages.join(', ')}"),
+            Text("${doctor.profession} Doctor"),
           ],
         ),
         trailing: ElevatedButton(
@@ -38,10 +59,13 @@ class DoctorCard extends StatelessWidget {
           },
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.primaryBlue,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
           ),
-          child: Text("Check form",
-            style: TextStyle(color: Colors.white), // White text
+          child: Text(
+            "Check form",
+            style: TextStyle(color: Colors.white),
           ),
         ),
       ),

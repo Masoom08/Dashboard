@@ -33,8 +33,9 @@ class DoctorViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      _doctors = await _repository.fetchDoctorsFromFirestore();
-      _totalPages = 1; // You can compute pages based on _doctors.length if needed
+      final fetchedDoctors = await _repository.fetchDoctorsFromFirestore();
+      _doctors = fetchedDoctors;
+      _totalPages = (_doctors.length / 10).ceil(); // Pagination logic based on page size (10 per page)
     } catch (e) {
       _errorMessage = 'Failed to load doctors: ${e.toString()}';
     } finally {
@@ -44,9 +45,10 @@ class DoctorViewModel extends ChangeNotifier {
 
   /// Filter by department (category)
   List<Doctor> getFilteredDoctors(String department) {
-    return _doctors
-        .where((doctor) => doctor.departments.contains(department))
-        .toList();
+    if (department.isEmpty) {
+      return _doctors; // Return all doctors if no specific category is selected
+    }
+    return _doctors.where((doctor) => doctor.departments.contains(department)).toList();
   }
 
   void setCategory(String category) {
@@ -71,5 +73,12 @@ class DoctorViewModel extends ChangeNotifier {
   void _setLoading(bool loading) {
     _isLoading = loading;
     notifyListeners();
+  }
+
+  // Method to get doctors for the current page with pagination
+  List<Doctor> getDoctorsForCurrentPage() {
+    int startIndex = (_currentPage - 1) * 10;
+    int endIndex = startIndex + 10;
+    return _doctors.sublist(startIndex, endIndex < _doctors.length ? endIndex : _doctors.length);
   }
 }

@@ -30,7 +30,6 @@ class ConsultantRequestsScreen extends StatelessWidget {
         ),
         body: Row(
           children: [
-            // 🔧 Changed selectedIndex from 1 ➜ 0
             Sidebar(
               selectedIndex: 0,
               onItemSelected: (index) {
@@ -45,7 +44,6 @@ class ConsultantRequestsScreen extends StatelessWidget {
   }
 }
 
-// ✅ Consultant List with Proper Handling
 class ConsultantRequestsList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -68,7 +66,7 @@ class ConsultantRequestsList extends StatelessWidget {
               ? const Center(child: CircularProgressIndicator())
               : doctorVM.doctors.isNotEmpty
               ? ListView.builder(
-            itemCount: doctorVM.doctors.length,
+            itemCount: doctorVM.doctors.take(3).length, // Limit to 3 doctors
             itemBuilder: (context, index) {
               return DoctorCard(doctor: doctorVM.doctors[index]);
             },

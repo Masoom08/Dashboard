@@ -6,7 +6,6 @@ import '../../../theme/colors.dart';
 import '../../../viewmodels/doctor_viewmodel.dart';
 
 class TotalUsersCard extends StatefulWidget {
-
   @override
   _TotalUsersCardState createState() => _TotalUsersCardState();
 }
@@ -51,67 +50,8 @@ class _TotalUsersCardState extends State<TotalUsersCard> {
                   children: [
                     // Responsive Top Row
                     isSmall
-                        ? Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text("Total Users : 10,000", style: _whiteTextStyle),
-                        const SizedBox(height: 8),
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: [
-                            ElevatedButton(onPressed: () {}, child: Text("Clients"), style: _filterBtnStyle),
-                            ElevatedButton(onPressed: () {}, child: Text("Consultants"), style: _filterBtnStyle),
-                            GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(builder: (context) => TotalUserScreen()),
-                                );
-                              },
-                              child: const Text(
-                                "Full Screen",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w500,
-                                  decoration: TextDecoration.underline,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    )
-                        : Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text("Total Users : 10,000", style: _whiteTextStyle),
-                        Row(
-                          children: [
-                            ElevatedButton(onPressed: () {}, child: Text("Clients"), style: _filterBtnStyle),
-                            const SizedBox(width: 8),
-                            ElevatedButton(onPressed: () {}, child: Text("Consultants"), style: _filterBtnStyle),
-                            const SizedBox(width: 12),
-                            GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(builder: (context) => TotalUserScreen()),
-                                );
-                              },
-                              child: const Text(
-                                "Full Screen",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w500,
-                                  decoration: TextDecoration.underline,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
+                        ? _buildSmallScreenHeader(context)
+                        : _buildLargeScreenHeader(context),
                     const SizedBox(height: 8),
                     Text("Doctors : ${doctors.length}", style: _whiteTextStyle),
                     Text("Orthopedics : ${filteredOrthos.length}", style: _whiteTextStyle),
@@ -145,12 +85,7 @@ class _TotalUsersCardState extends State<TotalUsersCard> {
               Padding(
                 padding: const EdgeInsets.all(12.0),
                 child: Column(
-                  children: doctorViewModel.selectedCategory.isEmpty
-                      ? doctors.map((doc) => _buildDoctorTile(doc)).toList()
-                      : doctorViewModel
-                      .getFilteredDoctors(doctorViewModel.selectedCategory)
-                      .map((doc) => _buildDoctorTile(doc))
-                      .toList(),
+                  children: _getFilteredDoctors(doctorViewModel).map((doc) => _buildDoctorTile(doc)).toList(),
                 ),
               ),
             ],
@@ -160,7 +95,84 @@ class _TotalUsersCardState extends State<TotalUsersCard> {
     );
   }
 
+  // Header for small screen
+  Widget _buildSmallScreenHeader(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text("Total Users : 10,000", style: _whiteTextStyle),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            ElevatedButton(onPressed: () {}, child: Text("Clients"), style: _filterBtnStyle),
+            ElevatedButton(onPressed: () {}, child: Text("Consultants"), style: _filterBtnStyle),
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => TotalUserScreen()),
+                );
+              },
+              child: const Text(
+                "Full Screen",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w500,
+                  decoration: TextDecoration.underline,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
 
+  // Header for large screen
+  Widget _buildLargeScreenHeader(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text("Total Users : 10,000", style: _whiteTextStyle),
+        Row(
+          children: [
+            ElevatedButton(onPressed: () {}, child: Text("Clients"), style: _filterBtnStyle),
+            const SizedBox(width: 8),
+            ElevatedButton(onPressed: () {}, child: Text("Consultants"), style: _filterBtnStyle),
+            const SizedBox(width: 12),
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => TotalUserScreen()),
+                );
+              },
+              child: const Text(
+                "Full Screen",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w500,
+                  decoration: TextDecoration.underline,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  // Returns the filtered list of doctors based on selected category
+  List<Doctor> _getFilteredDoctors(DoctorViewModel doctorViewModel) {
+    if (doctorViewModel.selectedCategory.isEmpty) {
+      return doctorViewModel.doctors;
+    }
+    return doctorViewModel.getFilteredDoctors(doctorViewModel.selectedCategory);
+  }
+
+  // Category filter button
   ElevatedButton _categoryButton(BuildContext context, String category) {
     final doctorViewModel = Provider.of<DoctorViewModel>(context, listen: false);
     return ElevatedButton(
@@ -173,6 +185,7 @@ class _TotalUsersCardState extends State<TotalUsersCard> {
     );
   }
 
+  // Builds individual doctor tile
   Widget _buildDoctorTile(Doctor doctor) {
     return ListTile(
       contentPadding: EdgeInsets.symmetric(vertical: 6),
