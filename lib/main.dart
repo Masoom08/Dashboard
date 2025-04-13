@@ -1,4 +1,5 @@
 import 'package:dashboard/viewmodels/doctor_viewmodel.dart';
+import 'package:dashboard/viewmodels/feedback_viewmodel.dart';
 import 'package:dashboard/viewmodels/user_viewmodel.dart';
 import 'package:dashboard/views/auth/login.dart';
 import 'package:flutter/material.dart';
@@ -25,6 +26,7 @@ void main() async {
       providers: [
         ChangeNotifierProvider(create: (_) => DoctorViewModel()),
         ChangeNotifierProvider(create: (_) => UserViewModel()),
+        ChangeNotifierProvider(create: (_) => FeedbackViewModel()),
       ],
       child: const MyApp(),
     ),

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../../theme/colors.dart';
+import '../../../viewmodels/feedback_viewmodel.dart';
 import '../sidebar.dart'; // ✅ Import Sidebar
+import 'package:provider/provider.dart';
 
 class FeedbackScreen extends StatefulWidget {
   @override
@@ -8,26 +10,15 @@ class FeedbackScreen extends StatefulWidget {
 }
 
 class _FeedbackScreenState extends State<FeedbackScreen> {
-  int selectedIndex = 2; // ✅ Message Icon Should be Selected
+  int selectedIndex = 2;
 
-  final List<Map<String, String>> feedbacks = [
-    {
-      "name": "Georgy Luchkin",
-      "message":
-      "Lorem ipsum dolor sit amet consectetur. Id sollicitudin elit vitae ac massa est cursus. "
-          "In nisl sit ullamcorper nunc. Leo arcu dolor amet praesent ornare. Nunc vel sagittis velit "
-          "dui sed elementum. Libero quis sed eget pellentesque massa arcu amet. Ipsum vestibulum "
-          "cum arcu ultrices bibendum. Habitant amet viverra porttitor ultrices sed donec volutpat "
-          "fusce sed. Aliquam nullam arcu quam sagittis aliquam non vitae condimentum. Tempus nunc ac "
-          "donec sapien malesuada. Faucibus mattis amet vulputate iaculis felis nibh. Eu sed quis iaculis "
-          "tortor malesuada in. Eget turpis enim malesuada pulvinar nisi augue tristique gravida. Eu "
-          "tincidunt suscipit donec odio. Praesent dictum mattis quam mauris a sed mattis nulla.",
-      "date": "20/2/2025"
-    },
-    // Add more dummy feedback items if needed
-  ];
+  @override
+  void initState() {
+    super.initState();
+    Provider.of<FeedbackViewModel>(context, listen: false).fetchFeedbacks();
+  }
 
-  void showFeedbackDialog(String name, String message, String date) {
+  void showFeedbackDialog(String userName, String message, DateTime timestamp) {
     showDialog(
       context: context,
       barrierDismissible: true,
@@ -41,62 +32,52 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
               borderRadius: BorderRadius.circular(16),
             ),
             width: 700,
-            child: Stack(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                Row(
                   children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        CircleAvatar(
-                          radius: 24,
-                          backgroundColor: AppColors.primaryBlue,
-                          child: Icon(Icons.person, color: Colors.white),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                name,
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                date,
-                                style: TextStyle(
-                                  color: Colors.grey.shade600,
-                                  fontSize: 12,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        GestureDetector(
-                          onTap: () => Navigator.pop(context),
-                          child: Icon(Icons.close, color: Colors.grey[700]),
-                        ),
-                      ],
+                    CircleAvatar(
+                      radius: 24,
+                      backgroundColor: AppColors.primaryBlue,
+                      child: Icon(Icons.person, color: Colors.white),
                     ),
-                    const SizedBox(height: 16),
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.blue.shade50,
-                        borderRadius: BorderRadius.circular(12),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text("$userName",
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              )),
+                          Text(
+                            "${timestamp.day}/${timestamp.month}/${timestamp.year}",
+                            style: TextStyle(
+                                fontSize: 12, color: Colors.grey.shade600),
+                          ),
+                        ],
                       ),
-                      child: Text(
-                        message,
-                        style: TextStyle(fontSize: 14, color: Colors.black87),
-                      ),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.close),
+                      onPressed: () => Navigator.pop(context),
                     ),
                   ],
+                ),
+                const SizedBox(height: 16),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.blue.shade50,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    message,
+                    style: TextStyle(fontSize: 14, color: Colors.black87),
+                  ),
                 ),
               ],
             ),
@@ -108,6 +89,8 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final viewModel = Provider.of<FeedbackViewModel>(context);
+
     return Scaffold(
       body: Row(
         children: [
@@ -122,7 +105,9 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(20.0),
-              child: Column(
+              child: viewModel.isLoading
+                  ? Center(child: CircularProgressIndicator())
+                  : Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
@@ -136,15 +121,18 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                   const SizedBox(height: 10),
                   Expanded(
                     child: ListView.builder(
-                      itemCount: feedbacks.length,
+                      itemCount: viewModel.feedbackWithUsers.length,
                       itemBuilder: (context, index) {
-                        final feedback = feedbacks[index];
+                        final feedbackWithUser = viewModel.feedbackWithUsers[index];
+                        final feedback = feedbackWithUser.feedback;
+                        final userName = feedbackWithUser.userName;
+
                         return GestureDetector(
                           onTap: () {
                             showFeedbackDialog(
-                              feedback['name']!,
-                              feedback['message']!,
-                              feedback['date']!,
+                              userName,
+                              feedback.message,
+                              feedback.timestamp,
                             );
                           },
                           child: Card(
@@ -154,13 +142,15 @@ class _FeedbackScreenState extends State<FeedbackScreen> {
                                 backgroundColor: AppColors.primaryBlue,
                                 child: Icon(Icons.person, color: Colors.white),
                               ),
-                              title: Text(feedback['name']!),
+                              title: Text("User: $userName"),
                               subtitle: Text(
-                                feedback['message']!.length > 50
-                                    ? feedback['message']!.substring(0, 50) + '...'
-                                    : feedback['message']!,
+                                feedback.message.length > 50
+                                    ? feedback.message.substring(0, 50) + '...'
+                                    : feedback.message,
                               ),
-                              trailing: Text(feedback['date']!),
+                              trailing: Text(
+                                "${feedback.timestamp.day}/${feedback.timestamp.month}/${feedback.timestamp.year}",
+                              ),
                             ),
                           ),
                         );
