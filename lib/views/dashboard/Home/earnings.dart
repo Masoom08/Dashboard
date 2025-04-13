@@ -1,136 +1,147 @@
 import 'package:flutter/material.dart';
+import 'package:dashboard/viewmodels/earning_view_model.dart';
+import 'package:provider/provider.dart'; // Use provider instead of flutter_riverpod
 import '../../../theme/colors.dart';
+
 import 'Calender/MonthPickerDialog.dart';
 import 'Calender/YearPickerDialog.dart';
 
 class EarningsCard extends StatefulWidget {
+  const EarningsCard({super.key});
+
   @override
-  _EarningsCardState createState() => _EarningsCardState();
+  State<EarningsCard> createState() => _EarningsCardState();
 }
 
 class _EarningsCardState extends State<EarningsCard> {
   int? selectedYear;
   int? selectedMonth;
+  String selectedFilter = "Today";
 
   void _pickDate(BuildContext context) async {
-    DateTime initialDate = DateTime.now();
-
-    if (selectedYear != null && selectedMonth != null) {
-      initialDate = DateTime(selectedYear!, selectedMonth!);
-    }
-
-    final DateTime? picked = await showDatePicker(
+    final picked = await showDatePicker(
       context: context,
-      initialDate: initialDate,
+      initialDate: DateTime.now(),
       firstDate: DateTime(1990),
       lastDate: DateTime(2100),
     );
 
     if (picked != null) {
-      print("Selected Date: $picked");
-      // Handle the selected date here if needed
+      context.read<EarningsViewModel>().fetchEarningsForDate(picked); // Using context.read
+      setState(() {
+        selectedFilter = "Today";
+      });
     }
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: SizedBox(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            double cardPadding = constraints.maxWidth < 600 ? 12 : 16;
-            double fontSize = constraints.maxWidth < 600 ? 24 : 32;
+  void initState() {
+    super.initState();
+    context.read<EarningsViewModel>().fetchEarningsForToday(); // Default earnings fetch
+  }
 
-            return Card(
-              elevation: 4,
-              color: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Padding(
-                padding: EdgeInsets.all(cardPadding),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          "Earnings",
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
+  @override
+  Widget build(BuildContext context) {
+    final state = context.watch<EarningsViewModel>(); // Using context.watch for listening
+
+    return Center(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          double cardPadding = constraints.maxWidth < 600 ? 12 : 16;
+          double fontSize = constraints.maxWidth < 600 ? 24 : 32;
+
+          return Card(
+            elevation: 4,
+            color: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Padding(
+              padding: EdgeInsets.all(cardPadding),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildHeader(),
+                  const SizedBox(height: 12),
+                  _buildFilters(),
+                  const SizedBox(height: 16),
+                  state.isLoading
+                      ? const CircularProgressIndicator()
+                      : Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "₹",
+                        style: TextStyle(
+                          fontSize: fontSize,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.primaryBlue,
                         ),
-                        Row(
-                          children: [
-                            Text("Custom",
-                                style: TextStyle(
-                                    fontSize: 14, color: Colors.black54)),
-                            SizedBox(width: 4),
-                            Icon(Icons.toggle_on,
-                                size: 20, color: Colors.black54),
-                          ],
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 12),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: [
-                        _buildFilterChip(context, "Today", isSelected: true),
-                        _buildFilterChip(context, "This Week"),
-                        _buildFilterChip(context, "This Month"),
-                        _buildFilterChip(context, "Half Yearly"),
-                        _buildFilterChip(context, "This Year"),
-                      ],
-                    ),
-                    SizedBox(height: 16),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "₹",
+                      ),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          "${state.earnings.toStringAsFixed(2)}",
                           style: TextStyle(
                             fontSize: fontSize,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.primaryBlue,
+                            color: Colors.black,
                           ),
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        SizedBox(width: 4),
-                        Expanded(
-                          child: Text(
-                            "100,000",
-                            style: TextStyle(
-                              fontSize: fontSize,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
-            );
-          },
-        ),
+            ),
+          );
+        },
       ),
     );
   }
 
-  Widget _buildFilterChip(BuildContext context, String label,
-      {bool isSelected = false}) {
-    return GestureDetector(
-      onTap: () {
-        if (label == "This Month") {
+  Widget _buildHeader() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: const [
+        Text(
+          "Earnings",
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        Row(
+          children: [
+            Text("Custom", style: TextStyle(fontSize: 14, color: Colors.black54)),
+            SizedBox(width: 4),
+            Icon(Icons.toggle_on, size: 20, color: Colors.black54),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildFilters() {
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: [
+        _buildFilterChip("Today", () {
+          _pickDate(context);
+        }),
+        _buildFilterChip("This Week", () {
+          context.read<EarningsViewModel>().fetchEarningsForThisWeek();
+          setState(() {
+            selectedFilter = "This Week";
+          });
+        }),
+        _buildFilterChip("This Month", () {
           showDialog(
             context: context,
             builder: (_) => Align(
-              alignment: Alignment(0, -0.2),
+              alignment: const Alignment(0, -0.2),
               child: MonthPickerDialog(
                 onMonthSelected: (String selectedMonthName) {
                   final monthMap = {
@@ -147,39 +158,46 @@ class _EarningsCardState extends State<EarningsCard> {
                     'November': 11,
                     'December': 12,
                   };
-
                   final selectedMonthNumber = monthMap[selectedMonthName];
-
                   if (selectedMonthNumber != null) {
-                    // Assuming you're using stateful widget and have a setState
                     setState(() {
                       selectedMonth = selectedMonthNumber;
-                      selectedYear ??= DateTime.now().year; // Optional fallback
+                      selectedYear ??= DateTime.now().year;
+                      selectedFilter = "This Month";
                     });
+                    context.read<EarningsViewModel>().fetchEarningsForMonth(selectedMonth!, selectedYear!);
                   }
                 },
               ),
             ),
           );
-        } else if (label == "This Year") {
+        }),
+        _buildFilterChip("This Year", () {
           showDialog(
             context: context,
             builder: (_) => Align(
-              alignment: Alignment(0, -0.2),
+              alignment: const Alignment(0, -0.2),
               child: YearPickerDialog(
                 onYearSelected: (year) {
                   setState(() {
                     selectedYear = year;
+                    selectedFilter = "This Year";
                   });
-                  print("Selected Year: $year");
+                  context.read<EarningsViewModel>().fetchEarningsForYear(year);
                 },
               ),
             ),
           );
-        } else if (label == "Today") {
-          _pickDate(context); // Open calendar using selected year & month
-        }
-      },
+        }),
+      ],
+    );
+  }
+
+  Widget _buildFilterChip(String label, VoidCallback onTap) {
+    final bool isSelected = label == selectedFilter;
+
+    return GestureDetector(
+      onTap: onTap,
       child: Padding(
         padding: const EdgeInsets.only(right: 8),
         child: Chip(
@@ -190,8 +208,7 @@ class _EarningsCardState extends State<EarningsCard> {
               color: isSelected ? Colors.white : Colors.black54,
             ),
           ),
-          backgroundColor:
-          isSelected ? AppColors.primaryBlue : Colors.grey[200],
+          backgroundColor: isSelected ? AppColors.primaryBlue : Colors.grey[200],
         ),
       ),
     );

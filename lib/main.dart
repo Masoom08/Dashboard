@@ -1,4 +1,5 @@
 import 'package:dashboard/viewmodels/doctor_viewmodel.dart';
+import 'package:dashboard/viewmodels/earning_view_model.dart';
 import 'package:dashboard/viewmodels/feedback_viewmodel.dart';
 import 'package:dashboard/viewmodels/user_viewmodel.dart';
 import 'package:dashboard/views/auth/login.dart';
@@ -27,6 +28,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => DoctorViewModel()),
         ChangeNotifierProvider(create: (_) => UserViewModel()),
         ChangeNotifierProvider(create: (_) => FeedbackViewModel()),
+        ChangeNotifierProvider(create: (_) => EarningsViewModel()),
       ],
       child: const MyApp(),
     ),
