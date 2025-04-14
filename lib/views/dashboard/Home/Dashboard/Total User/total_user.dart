@@ -1,9 +1,10 @@
-import 'package:dashboard/views/dashboard/Home/total_user_full.dart';
+
+import 'package:dashboard/views/dashboard/Home/Dashboard/Total%20User/total_user_full.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../models/doctor.dart';
-import '../../../theme/colors.dart';
-import '../../../viewmodels/doctor_viewmodel.dart';
+import '../../../../../models/doctor.dart';
+import '../../../../../theme/colors.dart';
+import '../../../../../viewmodels/doctor_viewmodel.dart';
 
 class TotalUsersCard extends StatefulWidget {
   @override

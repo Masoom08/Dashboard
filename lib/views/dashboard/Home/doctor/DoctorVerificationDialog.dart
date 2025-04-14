@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../../models/doctor.dart';
-import '../../../theme/colors.dart';
+import '../../../../models/doctor.dart';
+import '../../../../theme/colors.dart';
 
 class DoctorVerificationDialog extends StatefulWidget {
   final Doctor doctor;

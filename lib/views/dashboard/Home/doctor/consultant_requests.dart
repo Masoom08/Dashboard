@@ -1,8 +1,7 @@
+import 'package:dashboard/views/dashboard/Home/doctor/pagination_controls.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:dashboard/views/dashboard/doctor/pagination_controls.dart';
-import '../../../viewmodels/doctor_viewmodel.dart';
-import '../../../models/doctor.dart';
+import '../../../../viewmodels/doctor_viewmodel.dart';
 import '../sidebar.dart';
 import 'DoctorCard.dart';
 

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import '../../../theme/colors.dart';
+import '../../../../theme/colors.dart';
 import '../Annoucement.dart';
-import 'consultant.dart';
-import 'earnings.dart';
-import 'overview.dart';
 import '../sidebar.dart';
-import 'total_user.dart';
+import 'Consultant Request/consultant.dart';
+import 'Earning/earnings.dart';
+import 'Overview Graph/overview.dart';
+import 'Total User/total_user.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});

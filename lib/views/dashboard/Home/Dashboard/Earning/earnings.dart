@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:dashboard/viewmodels/earning_view_model.dart';
-import 'package:provider/provider.dart'; // Use provider instead of flutter_riverpod
-import '../../../theme/colors.dart';
-
+import 'package:provider/provider.dart';
+import '../../../../../theme/colors.dart';
 import 'Calender/MonthPickerDialog.dart';
 import 'Calender/YearPickerDialog.dart';
 
