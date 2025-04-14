@@ -1,6 +1,5 @@
 import 'package:dashboardN/views/Dashboard/sidebar.dart';
 import 'package:flutter/material.dart';
-
 import '../../theme/colors.dart';
 
 class AnnouncementScreen extends StatefulWidget {
@@ -14,8 +13,6 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
   void updateIndex(int index) {
     setState(() {
       selectedIndex = index;
-      // Optional: Navigate to a different screen based on index
-      // if (index != 3) Navigator.push(...);
     });
   }
 
@@ -68,70 +65,72 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
                     ),
                   ),
                 ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          padding: EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Column(
-                            children: [
-                              Container(
-                                height: 40,
-                                decoration: BoxDecoration(
-                                  color: Colors.grey[200],
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                padding: const EdgeInsets.all(8.0),
-                                child: const TextField(
-                                  maxLines: null,
-                                  decoration: InputDecoration(
-                                    hintText: "Title",
-                                    hintStyle: TextStyle(color: Colors.grey),
-                                    border: InputBorder.none,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: 10),
-                              Container(
-                                height: 400,
-                                decoration: BoxDecoration(
-                                  color: Colors.grey[200],
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                padding: const EdgeInsets.all(8.0),
-                                child: const TextField(
-                                  maxLines: null,
-                                  decoration: InputDecoration(
-                                    hintText: "Write Paragraph Here!",
-                                    hintStyle: TextStyle(color: Colors.grey),
-                                    border: InputBorder.none,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: ElevatedButton(
-                            onPressed: () {
-                              // Handle send action
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.primaryBlue,
+                Flexible(
+                  child: SingleChildScrollView(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            padding: EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(8),
                             ),
-                            child: const Text("Send", style: TextStyle(color: Colors.white)),
+                            child: Column(
+                              children: [
+                                Container(
+                                  height: 40,
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[200],
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: const TextField(
+                                    maxLines: null,
+                                    decoration: InputDecoration(
+                                      hintText: "Title",
+                                      hintStyle: TextStyle(color: Colors.grey),
+                                      border: InputBorder.none,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 10),
+                                Container(
+                                  height: 400,
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[200],
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: const TextField(
+                                    maxLines: null,
+                                    decoration: InputDecoration(
+                                      hintText: "Write Paragraph Here!",
+                                      hintStyle: TextStyle(color: Colors.grey),
+                                      border: InputBorder.none,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
+                          const SizedBox(height: 20),
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: ElevatedButton(
+                              onPressed: () {
+                                // Handle send action
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.primaryBlue,
+                              ),
+                              child: const Text("Send", style: TextStyle(color: Colors.white)),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
