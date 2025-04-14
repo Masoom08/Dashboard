@@ -1,5 +1,5 @@
 import 'package:dashboard/viewmodels/doctor_viewmodel.dart';
-import 'package:dashboard/viewmodels/earning_view_model.dart';
+import 'package:dashboard/viewmodels/wallet_view_model.dart';
 import 'package:dashboard/viewmodels/feedback_viewmodel.dart';
 import 'package:dashboard/viewmodels/user_viewmodel.dart';
 import 'package:dashboard/views/auth/login.dart';

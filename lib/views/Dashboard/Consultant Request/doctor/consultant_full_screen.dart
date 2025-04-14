@@ -1,8 +1,8 @@
-import 'package:dashboard/views/dashboard/Home/Dashboard/Consultant%20Request/doctor/pagination_controls.dart';
+import 'package:dashboard/views/Dashboard/Consultant%20Request/doctor/pagination_controls.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../../../viewmodels/doctor_viewmodel.dart';
-import '../../../sidebar.dart';
+import '../../sidebar.dart';
 import 'DoctorCard.dart';
 
 class ConsultantRequestsScreen extends StatelessWidget {

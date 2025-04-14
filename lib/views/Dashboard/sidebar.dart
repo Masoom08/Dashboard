@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import '../../../theme/colors.dart';
-import '../../auth/login.dart';
+import '../../theme/colors.dart';
+import '../auth/login.dart';
 import 'Annoucement.dart';
 import 'Feedback.dart';
-import 'Dashboard/dashboard.dart';
+import 'Home_dashboard.dart';
 
 class Sidebar extends StatelessWidget {
   final int selectedIndex;

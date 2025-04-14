@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import '../../../../../models/doctor.dart';
 import '../../../../../theme/colors.dart';
 import '../../../../../viewmodels/doctor_viewmodel.dart';
-import '../../sidebar.dart';
+import '../sidebar.dart';
 
 // ✅ Constant list moved outside to be used safely in const contexts
 const List<String> earningOptions = [

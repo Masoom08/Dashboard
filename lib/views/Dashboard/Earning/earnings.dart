@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:dashboard/viewmodels/earning_view_model.dart';
+import 'package:dashboard/viewmodels/wallet_view_model.dart';
 import 'package:provider/provider.dart';
 import '../../../../../theme/colors.dart';
 import 'Calender/MonthPickerDialog.dart';

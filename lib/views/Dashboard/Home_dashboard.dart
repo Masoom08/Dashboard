@@ -1,7 +1,7 @@
+import 'package:dashboard/views/Dashboard/sidebar.dart';
 import 'package:flutter/material.dart';
 import '../../../../theme/colors.dart';
-import '../Annoucement.dart';
-import '../sidebar.dart';
+import 'Annoucement.dart';
 import 'Consultant Request/consultant.dart';
 import 'Earning/earnings.dart';
 import 'Overview Graph/overview.dart';

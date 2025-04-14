@@ -4,7 +4,7 @@ import '../../../../../models/doctor.dart';
 import '../../../../../theme/colors.dart';
 import '../../../../../viewmodels/doctor_viewmodel.dart';
 import 'doctor/DoctorVerificationDialog.dart';
-import 'doctor/consultant_requests.dart';
+import 'doctor/consultant_full_screen.dart';
 
 
 

@@ -2,7 +2,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../../../../viewmodels/earning_view_model.dart';
+import '../../../../../viewmodels/wallet_view_model.dart';
 
 class OverviewGraph extends StatefulWidget {
   @override
