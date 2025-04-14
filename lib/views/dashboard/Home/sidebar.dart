@@ -4,7 +4,6 @@ import '../../auth/login.dart';
 import 'Annoucement.dart';
 import 'Feedback.dart';
 import 'Dashboard/dashboard.dart';
-import 'doctor/consultant_requests.dart';
 
 class Sidebar extends StatelessWidget {
   final int selectedIndex;
@@ -24,7 +23,7 @@ class Sidebar extends StatelessWidget {
       child: Column(
         children: [
           const SizedBox(height: 20),
-          buildIconButton(Icons.volunteer_activism, 0, context, screen: ConsultantRequestsScreen()),
+          buildIconButton(Icons.volunteer_activism, 0, context),
           const SizedBox(height: 20),
           buildIconButton(Icons.dashboard, 1, context, screen: DashboardScreen()),
           const SizedBox(height: 20),
@@ -44,10 +43,22 @@ class Sidebar extends StatelessWidget {
 
     // Choose icon variant for consultant (index 0) when selected
     if (index == 0) {
-      finalIcon = selectedIndex == index
-          ? Icons.volunteer_activism // Filled when selected
-          : Icons.volunteer_activism_outlined; // Outlined when not selected
-    } else if (index == 1) {
+      // Always use filled icon and white color for consultant request
+      return IconButton(
+        onPressed: null, //
+        icon: ColorFiltered(
+          colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+          child: Image.asset(
+            'assets/icon.png',
+            width: 32,
+            height: 32,
+          ),
+        ),
+        iconSize: 38,
+        disabledColor: Colors.white, // Optional
+      );
+    }
+    if (index == 1) {
       finalIcon = selectedIndex == index ? Icons.dashboard : Icons.dashboard_outlined;
     } else if (index == 2) {
       finalIcon = selectedIndex == index ? Icons.message_rounded : Icons.message_outlined;

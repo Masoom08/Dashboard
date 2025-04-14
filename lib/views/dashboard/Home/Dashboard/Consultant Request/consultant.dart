@@ -3,10 +3,16 @@ import 'package:provider/provider.dart';
 import '../../../../../models/doctor.dart';
 import '../../../../../theme/colors.dart';
 import '../../../../../viewmodels/doctor_viewmodel.dart';
-import '../../doctor/DoctorVerificationDialog.dart';
-import '../../doctor/consultant_requests.dart';
+import 'ConsultantFormScreen.dart';
+import 'doctor/DoctorVerificationDialog.dart';
+import 'doctor/consultant_requests.dart';
+
+
 
 class ConsultantRequests extends StatelessWidget {
+  final bool showAll;
+  ConsultantRequests({this.showAll = false}); // default is false (Home preview)
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
@@ -30,6 +36,7 @@ class ConsultantRequests extends StatelessWidget {
             }
 
             final List<Doctor> doctors = viewModel.doctors;
+            final List<Doctor> displayedDoctors = showAll ? doctors : doctors.take(2).toList();
 
             return Card(
               color: Colors.white,
@@ -53,24 +60,25 @@ class ConsultantRequests extends StatelessWidget {
                           children: [
                             Text("Consultant Requests",
                                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white)),
-                            InkWell(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => ConsultantRequestsScreen(), // Make sure it's imported
+                            if (!showAll)
+                              InkWell(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => ConsultantRequestsScreen(),
+                                    ),
+                                  );
+                                },
+                                child: Text(
+                                  "Full Screen",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w500,
+                                    decoration: TextDecoration.underline,
                                   ),
-                                );
-                              },
-                              child: Text(
-                                "Full Screen",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w500,
-                                  decoration: TextDecoration.underline,
                                 ),
                               ),
-                            ),
                           ],
                         ),
                         SizedBox(height: 10),
@@ -89,7 +97,7 @@ class ConsultantRequests extends StatelessWidget {
                   ),
 
                   // Doctor List
-                  ...doctors.map((doctor) {
+                  ...displayedDoctors.map((doctor) {
                     return Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                       child: Row(
@@ -114,9 +122,16 @@ class ConsultantRequests extends StatelessWidget {
                           if (!isSmallScreen)
                             ElevatedButton(
                               onPressed: () {
-                                showDialog(
-                                  context: context,
-                                  builder: (context) => DoctorVerificationDialog(doctor: doctor),
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => ConsultantFormScreen(
+                                      data: {
+                                        "name": doctor.name,
+                                        "specialization": doctor.profession,
+                                      },
+                                    ),
+                                  ),
                                 );
                               },
                               style: ElevatedButton.styleFrom(

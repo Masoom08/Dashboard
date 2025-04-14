@@ -1,11 +1,12 @@
-import 'package:dashboard/views/dashboard/Home/doctor/pagination_controls.dart';
+import 'package:dashboard/views/dashboard/Home/Dashboard/Consultant%20Request/doctor/pagination_controls.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../../viewmodels/doctor_viewmodel.dart';
-import '../sidebar.dart';
+import '../../../../../../viewmodels/doctor_viewmodel.dart';
+import '../../../sidebar.dart';
 import 'DoctorCard.dart';
 
 class ConsultantRequestsScreen extends StatelessWidget {
+
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
@@ -35,7 +36,7 @@ class ConsultantRequestsScreen extends StatelessWidget {
                 // Add screen navigation logic here if needed
               },
             ),
-            Expanded(child: ConsultantRequestsList()),
+            Expanded(child: ConsultantRequestsList(showAll: true)),
           ],
         ),
       ),
@@ -44,6 +45,9 @@ class ConsultantRequestsScreen extends StatelessWidget {
 }
 
 class ConsultantRequestsList extends StatelessWidget {
+  final bool showAll;
+  const ConsultantRequestsList({super.key, this.showAll = false});
+
   @override
   Widget build(BuildContext context) {
     final doctorVM = Provider.of<DoctorViewModel>(context);
@@ -65,7 +69,7 @@ class ConsultantRequestsList extends StatelessWidget {
               ? const Center(child: CircularProgressIndicator())
               : doctorVM.doctors.isNotEmpty
               ? ListView.builder(
-            itemCount: doctorVM.doctors.take(3).length, // Limit to 3 doctors
+            itemCount: doctorVM.doctors.length, // Limit to 3 doctors
             itemBuilder: (context, index) {
               return DoctorCard(doctor: doctorVM.doctors[index]);
             },

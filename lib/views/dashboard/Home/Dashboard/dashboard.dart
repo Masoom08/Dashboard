@@ -100,7 +100,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     SizedBox(width: isSmallScreen ? 8 : 24),
                                     Expanded(
                                       flex: 3,
-                                      child: ConsultantRequests(),
+                                      child: ConsultantRequests(showAll: false),
                                     ),
                                   ],
                                 ),

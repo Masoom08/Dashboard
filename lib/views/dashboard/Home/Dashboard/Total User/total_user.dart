@@ -55,8 +55,8 @@ class _TotalUsersCardState extends State<TotalUsersCard> {
                         : _buildLargeScreenHeader(context),
                     const SizedBox(height: 8),
                     Text("Doctors : ${doctors.length}", style: _whiteTextStyle),
-                    Text("Orthopedics : ${filteredOrthos.length}", style: _whiteTextStyle),
-                    Text("Cardiology : ${filteredCardios.length}", style: _whiteTextStyle),
+                    //Text("Orthopedics : ${filteredOrthos.length}", style: _whiteTextStyle),
+                    //Text("Cardiology : ${filteredCardios.length}", style: _whiteTextStyle),
                     const SizedBox(height: 10),
 
                     // Category Filters
@@ -82,11 +82,13 @@ class _TotalUsersCardState extends State<TotalUsersCard> {
                 ),
               ),
 
-              // Filtered List
               Padding(
                 padding: const EdgeInsets.all(12.0),
                 child: Column(
-                  children: _getFilteredDoctors(doctorViewModel).map((doc) => _buildDoctorTile(doc)).toList(),
+                  children: _getFilteredDoctors(doctorViewModel)
+                      .take(2) // Show only 2 doctors
+                      .map((doc) => _buildDoctorTile(doc))
+                      .toList(),
                 ),
               ),
             ],
