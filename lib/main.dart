@@ -1,8 +1,9 @@
-import 'package:dashboard/viewmodels/doctor_viewmodel.dart';
-import 'package:dashboard/viewmodels/wallet_view_model.dart';
-import 'package:dashboard/viewmodels/feedback_viewmodel.dart';
-import 'package:dashboard/viewmodels/user_viewmodel.dart';
-import 'package:dashboard/views/auth/login.dart';
+
+import 'package:dashboardN/viewmodels/doctor_viewmodel.dart';
+import 'package:dashboardN/viewmodels/feedback_viewmodel.dart';
+import 'package:dashboardN/viewmodels/user_viewmodel.dart';
+import 'package:dashboardN/viewmodels/wallet_view_model.dart';
+import 'package:dashboardN/views/auth/login.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';

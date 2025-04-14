@@ -1,6 +1,6 @@
-import 'package:dashboard/theme/colors.dart';
 import 'package:flutter/material.dart';
 import '../../../../../../models/doctor.dart';
+import '../../../../theme/colors.dart';
 import 'DoctorVerificationDialog.dart';
 
 class DoctorCard extends StatelessWidget {

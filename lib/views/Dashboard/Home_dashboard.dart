@@ -1,14 +1,17 @@
-import 'package:dashboard/views/Dashboard/sidebar.dart';
 import 'package:flutter/material.dart';
 import '../../../../theme/colors.dart';
+import '../../models/user.dart';
 import 'Annoucement.dart';
 import 'Consultant Request/consultant.dart';
 import 'Earning/earnings.dart';
 import 'Overview Graph/overview.dart';
 import 'Total User/total_user.dart';
+import 'Sidebar.dart';
 
 class DashboardScreen extends StatefulWidget {
-  const DashboardScreen({super.key});
+  final UserModel? currentUser; // Accept currentUser as a parameter
+
+  const DashboardScreen({super.key, this.currentUser});
 
   @override
   _DashboardScreenState createState() => _DashboardScreenState();
@@ -62,12 +65,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           color: Colors.black,
                         ),
                       ),
-                      Spacer(),
-                      const CircleAvatar(
+                      const Spacer(),
+                      CircleAvatar(
                         radius: 20,
-                        backgroundImage: NetworkImage(
-                          "https://randomuser.me/api/portraits/men/1.jpg",
-                        ),
+                        backgroundImage: _getProfileImage(widget.currentUser?.profilePicUrl),
                       ),
                     ],
                   ),
@@ -204,5 +205,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ],
       ),
     );
+  }
+
+  // Method to return the correct image for the profile
+  ImageProvider _getProfileImage(String? url) {
+    if (url != null && url.isNotEmpty) {
+      return NetworkImage(url);
+    } else {
+      return const AssetImage('assets/default_profile_pic.png');
+    }
   }
 }

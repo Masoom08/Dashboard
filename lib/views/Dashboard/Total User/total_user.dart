@@ -1,5 +1,4 @@
-
-import 'package:dashboard/views/Dashboard/Total%20User/total_user_full.dart';
+import 'package:dashboardN/views/Dashboard/Total%20User/total_user_full.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../../../models/doctor.dart';

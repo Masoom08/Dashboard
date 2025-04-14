@@ -22,25 +22,37 @@ class UserViewModel extends ChangeNotifier {
     print('🟡 Attempting login for email: $email');
 
     try {
+      // Attempt to login the user via repository
       final loggedInUser = await _repository.loginUser(email, password);
 
+      // If login successful, assign the logged-in user to _user
       if (loggedInUser != null) {
         _user = loggedInUser;
         print('✅ Login successful for user: ${_user!.email}');
         return true;
       } else {
+        // If credentials are invalid, set an error message
         _errorMessage = "Invalid email or password";
         print('❌ Login failed: Invalid credentials for $email');
         return false;
       }
     } catch (e) {
+      // Handle any exceptions (e.g., network errors) that may occur
       _errorMessage = e.toString();
       print('🔴 Exception during login: $e');
       return false;
     } finally {
+      // Always reset the loading state and notify listeners
       _isLoading = false;
       notifyListeners();
       print('ℹ️ Login process completed');
     }
+  }
+
+  // Optionally, you can add a method to handle logout
+  Future<void> logout() async {
+    _user = null;  // Clear user data
+    notifyListeners();  // Notify UI to update
+    print('ℹ️ User logged out');
   }
 }

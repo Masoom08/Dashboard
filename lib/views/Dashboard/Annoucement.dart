@@ -1,6 +1,7 @@
-import 'package:dashboard/views/Dashboard/sidebar.dart';
+import 'package:dashboardN/views/Dashboard/sidebar.dart';
 import 'package:flutter/material.dart';
-import 'package:dashboard/theme/colors.dart';
+
+import '../../theme/colors.dart';
 
 class AnnouncementScreen extends StatefulWidget {
   @override

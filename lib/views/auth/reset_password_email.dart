@@ -1,4 +1,5 @@
-import 'package:dashboard/views/auth/reset_password_new.dart';
+
+import 'package:dashboardN/views/auth/reset_password_new.dart';
 import 'package:flutter/material.dart';
 
 import '../../theme/colors.dart';
