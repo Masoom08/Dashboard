@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import '../../../../../models/doctor.dart';
 import '../../../../../theme/colors.dart';
 import '../../../../../viewmodels/doctor_viewmodel.dart';
-import 'ConsultantFormScreen.dart';
 import 'doctor/DoctorVerificationDialog.dart';
 import 'doctor/consultant_requests.dart';
 
@@ -122,16 +121,9 @@ class ConsultantRequests extends StatelessWidget {
                           if (!isSmallScreen)
                             ElevatedButton(
                               onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => ConsultantFormScreen(
-                                      data: {
-                                        "name": doctor.name,
-                                        "specialization": doctor.profession,
-                                      },
-                                    ),
-                                  ),
+                                showDialog(
+                                  context: context,
+                                  builder: (_) => DoctorVerificationDialog(doctor: doctor),
                                 );
                               },
                               style: ElevatedButton.styleFrom(
