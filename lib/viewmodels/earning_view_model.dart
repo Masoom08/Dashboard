@@ -8,8 +8,11 @@ enum EarningFilter { today, thisWeek, thisMonth, halfYear, thisYear }
 class EarningsViewModel extends ChangeNotifier {
   final WalletService _walletService;
 
+  final Map<String, double> _monthlyEarnings = {}; // Key: MM-yyyy, Value: total earnings
+  Map<String, double> get monthlyEarnings => _monthlyEarnings;
+
   double _earnings = 0;
-  double get earnings => _earnings;  // This is the equivalent of totalEarnings
+  double get earnings => _earnings;
 
   EarningFilter _currentFilter = EarningFilter.today;
   EarningFilter get currentFilter => _currentFilter;
@@ -20,22 +23,32 @@ class EarningsViewModel extends ChangeNotifier {
   EarningsViewModel({WalletService? walletService})
       : _walletService = walletService ?? WalletService();
 
-  // Set the filter and re-fetch earnings based on the selected filter
   void setFilter(EarningFilter filter) {
     _currentFilter = filter;
     fetchAndCalculateEarnings();
   }
 
-  // General method to fetch wallets and calculate earnings
   Future<void> fetchAndCalculateEarnings() async {
     _isLoading = true;
     notifyListeners();
 
     try {
-      // Fetch all wallets from the service
       final List<Wallet> wallets = await _walletService.fetchAllWallets();
 
-      // Filter wallets based on the selected date range
+      _monthlyEarnings.clear();
+
+      for (var wallet in wallets) {
+        final createdAt = wallet.walletCreatedAt;
+        final key = "${createdAt.month.toString().padLeft(2, '0')}-${createdAt.year}"; // MM-yyyy
+
+        _monthlyEarnings.update(
+          key,
+              (value) => value + (wallet.balance * 0.05),
+          ifAbsent: () => wallet.balance * 0.05,
+        );
+      }
+
+      // Set total _earnings for current filter
       final filteredWallets = wallets.where((wallet) {
         switch (_currentFilter) {
           case EarningFilter.today:
@@ -53,12 +66,8 @@ class EarningsViewModel extends ChangeNotifier {
         }
       }).toList();
 
-      // Calculate earnings as 5% of wallet balances
-      _earnings = filteredWallets.fold(0.0, (sum, wallet) {
-        return sum + (wallet.balance * 0.05); // 5% of each wallet balance
-      });
+      _earnings = filteredWallets.fold(0.0, (sum, wallet) => sum + (wallet.balance * 0.05));
     } catch (e) {
-      // Handle errors here if necessary
       _earnings = 0.0;
     } finally {
       _isLoading = false;
@@ -66,34 +75,58 @@ class EarningsViewModel extends ChangeNotifier {
     }
   }
 
-  // Fetch earnings for Today
+
   Future<void> fetchEarningsForToday() async {
     _currentFilter = EarningFilter.today;
     await fetchAndCalculateEarnings();
   }
 
-  // Fetch earnings for This Week
   Future<void> fetchEarningsForThisWeek() async {
     _currentFilter = EarningFilter.thisWeek;
     await fetchAndCalculateEarnings();
   }
 
-  // Fetch earnings for This Month
   Future<void> fetchEarningsForMonth(int month, int year) async {
     _currentFilter = EarningFilter.thisMonth;
     await fetchAndCalculateEarnings();
   }
 
-  // Fetch earnings for This Year
   Future<void> fetchEarningsForYear(int year) async {
     _currentFilter = EarningFilter.thisYear;
     await fetchAndCalculateEarnings();
   }
 
-  // Fetch earnings for a specific date
   Future<void> fetchEarningsForDate(DateTime date) async {
-    // You can modify this method to handle any specific date filtering
-    _currentFilter = EarningFilter.today; // As an example, we can default it to today
+    _currentFilter = EarningFilter.today;
     await fetchAndCalculateEarnings();
+  }
+
+  /// ✅ Add this method to support custom date range filtering
+  Future<void> fetchEarningsBetweenDates(DateTime start, DateTime end) async {
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      // Ensure correct date order
+      if (start.isAfter(end)) {
+        final temp = start;
+        start = end;
+        end = temp;
+      }
+
+      final wallets = await _walletService.fetchAllWallets();
+
+      final filtered = wallets.where((wallet) =>
+      wallet.walletCreatedAt.isAfter(start.subtract(const Duration(days: 1))) &&
+          wallet.walletCreatedAt.isBefore(end.add(const Duration(days: 1)))
+      ).toList();
+
+      _earnings = filtered.fold(0.0, (sum, wallet) => sum + (wallet.balance * 0.05));
+    } catch (e) {
+      _earnings = 0.0;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
   }
 }
