@@ -8,7 +8,7 @@ enum EarningFilter { today, thisWeek, thisMonth, halfYear, thisYear }
 class EarningsViewModel extends ChangeNotifier {
   final WalletService _walletService;
 
-  final Map<String, double> _monthlyEarnings = {}; // Key: MM-yyyy, Value: total earnings
+  final Map<String, double> _monthlyEarnings = {};
   Map<String, double> get monthlyEarnings => _monthlyEarnings;
 
   double _earnings = 0;
@@ -19,6 +19,10 @@ class EarningsViewModel extends ChangeNotifier {
 
   bool _isLoading = false;
   bool get isLoading => _isLoading;
+
+  DateTime? _specificDate;
+  int? _month;
+  int? _year;
 
   EarningsViewModel({WalletService? walletService})
       : _walletService = walletService ?? WalletService();
@@ -34,12 +38,11 @@ class EarningsViewModel extends ChangeNotifier {
 
     try {
       final List<Wallet> wallets = await _walletService.fetchAllWallets();
-
       _monthlyEarnings.clear();
 
       for (var wallet in wallets) {
         final createdAt = wallet.walletCreatedAt;
-        final key = "${createdAt.month.toString().padLeft(2, '0')}-${createdAt.year}"; // MM-yyyy
+        final key = "${createdAt.month.toString().padLeft(2, '0')}-${createdAt.year}";
 
         _monthlyEarnings.update(
           key,
@@ -48,21 +51,34 @@ class EarningsViewModel extends ChangeNotifier {
         );
       }
 
-      // Set total _earnings for current filter
       final filteredWallets = wallets.where((wallet) {
+        final createdAt = wallet.walletCreatedAt;
+
+        if (_specificDate != null) {
+          return createdAt.year == _specificDate!.year &&
+              createdAt.month == _specificDate!.month &&
+              createdAt.day == _specificDate!.day;
+        }
+
+        if (_month != null && _year != null) {
+          return createdAt.month == _month && createdAt.year == _year;
+        }
+
+        if (_year != null && _month == null) {
+          return createdAt.year == _year;
+        }
+
         switch (_currentFilter) {
           case EarningFilter.today:
-            return DateFilterUtil.isInToday(wallet.walletCreatedAt);
+            return DateFilterUtil.isInToday(createdAt);
           case EarningFilter.thisWeek:
-            return DateFilterUtil.isInThisWeek(wallet.walletCreatedAt);
+            return DateFilterUtil.isInThisWeek(createdAt);
           case EarningFilter.thisMonth:
-            return DateFilterUtil.isInThisMonth(wallet.walletCreatedAt);
+            return DateFilterUtil.isInThisMonth(createdAt);
           case EarningFilter.halfYear:
-            return DateFilterUtil.isInHalfYear(wallet.walletCreatedAt);
+            return DateFilterUtil.isInHalfYear(createdAt);
           case EarningFilter.thisYear:
-            return DateFilterUtil.isInThisYear(wallet.walletCreatedAt);
-          default:
-            return false;
+            return DateFilterUtil.isInThisYear(createdAt);
         }
       }).toList();
 
@@ -72,12 +88,17 @@ class EarningsViewModel extends ChangeNotifier {
     } finally {
       _isLoading = false;
       notifyListeners();
+
+      // Clear temporary filters after use
+      _specificDate = null;
+      _month = null;
+      _year = null;
     }
   }
 
-
   Future<void> fetchEarningsForToday() async {
     _currentFilter = EarningFilter.today;
+    _specificDate = DateTime.now();
     await fetchAndCalculateEarnings();
   }
 
@@ -88,26 +109,28 @@ class EarningsViewModel extends ChangeNotifier {
 
   Future<void> fetchEarningsForMonth(int month, int year) async {
     _currentFilter = EarningFilter.thisMonth;
+    _month = month;
+    _year = year;
     await fetchAndCalculateEarnings();
   }
 
   Future<void> fetchEarningsForYear(int year) async {
     _currentFilter = EarningFilter.thisYear;
+    _year = year;
     await fetchAndCalculateEarnings();
   }
 
   Future<void> fetchEarningsForDate(DateTime date) async {
     _currentFilter = EarningFilter.today;
+    _specificDate = date;
     await fetchAndCalculateEarnings();
   }
 
-  /// ✅ Add this method to support custom date range filtering
   Future<void> fetchEarningsBetweenDates(DateTime start, DateTime end) async {
     _isLoading = true;
     notifyListeners();
 
     try {
-      // Ensure correct date order
       if (start.isAfter(end)) {
         final temp = start;
         start = end;
@@ -118,8 +141,7 @@ class EarningsViewModel extends ChangeNotifier {
 
       final filtered = wallets.where((wallet) =>
       wallet.walletCreatedAt.isAfter(start.subtract(const Duration(days: 1))) &&
-          wallet.walletCreatedAt.isBefore(end.add(const Duration(days: 1)))
-      ).toList();
+          wallet.walletCreatedAt.isBefore(end.add(const Duration(days: 1)))).toList();
 
       _earnings = filtered.fold(0.0, (sum, wallet) => sum + (wallet.balance * 0.05));
     } catch (e) {

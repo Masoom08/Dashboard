@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:cached_network_image/cached_network_image.dart'; // Add this import for caching network images
 import '../../../../../models/doctor.dart';
 import '../../../../../theme/colors.dart';
 import '../../../../../viewmodels/doctor_viewmodel.dart';
 import 'doctor/DoctorVerificationDialog.dart';
 import 'doctor/consultant_full_screen.dart';
-
-
 
 class ConsultantRequests extends StatelessWidget {
   final bool showAll;
@@ -102,9 +101,35 @@ class ConsultantRequests extends StatelessWidget {
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          CircleAvatar(
-                            backgroundImage: NetworkImage(doctor.profilePicUrl),
-                            radius: 24,
+                          // Displaying the profile picture or fallback text (first letter of name)
+                          Container(
+                            width: 48,
+                            height: 48,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: AppColors.primaryBlue, // Default background color
+                            ),
+                            child: doctor.profilePicUrl.isNotEmpty
+                                ? CachedNetworkImage(
+                              imageUrl: doctor.profilePicUrl,
+                              imageBuilder: (context, imageProvider) {
+                                return CircleAvatar(
+                                  backgroundImage: imageProvider,
+                                );
+                              },
+                              placeholder: (context, url) => Center(child: CircularProgressIndicator()),
+                              errorWidget: (context, url, error) => Center(
+                                  child: Text(
+                                    doctor.name.isNotEmpty ? doctor.name[0] : '', // Fallback text
+                                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                                  )),
+                            )
+                                : Center(
+                              child: Text(
+                                doctor.name.isNotEmpty ? doctor.name[0] : '', // Fallback text
+                                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                              ),
+                            ),
                           ),
                           SizedBox(width: 12),
                           Expanded(

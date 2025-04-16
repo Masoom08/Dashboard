@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../../../../models/doctor.dart';
 import '../../../../../theme/colors.dart';
 import '../../../../../viewmodels/doctor_viewmodel.dart';
+import 'package:cached_network_image/cached_network_image.dart'; // Import for cached images
 
 class TotalUsersCard extends StatefulWidget {
   @override
@@ -54,8 +55,6 @@ class _TotalUsersCardState extends State<TotalUsersCard> {
                         : _buildLargeScreenHeader(context),
                     const SizedBox(height: 8),
                     Text("Doctors : ${doctors.length}", style: _whiteTextStyle),
-                    //Text("Orthopedics : ${filteredOrthos.length}", style: _whiteTextStyle),
-                    //Text("Cardiology : ${filteredCardios.length}", style: _whiteTextStyle),
                     const SizedBox(height: 10),
 
                     // Category Filters
@@ -187,11 +186,31 @@ class _TotalUsersCardState extends State<TotalUsersCard> {
     );
   }
 
-  // Builds individual doctor tile
+  // Builds individual doctor tile with image fallback
   Widget _buildDoctorTile(Doctor doctor) {
     return ListTile(
       contentPadding: EdgeInsets.symmetric(vertical: 6),
-      leading: CircleAvatar(backgroundImage: NetworkImage(doctor.profilePicUrl)),
+      leading: doctor.profilePicUrl.isNotEmpty
+          ? CachedNetworkImage(
+        imageUrl: doctor.profilePicUrl,
+        placeholder: (context, url) => CircularProgressIndicator(),
+        errorWidget: (context, url, error) => CircleAvatar(
+          backgroundColor: AppColors.primaryBlue,
+          radius: 24,
+          child: Text(
+            doctor.name.isNotEmpty ? doctor.name[0] : '',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+          ),
+        ),
+      )
+          : CircleAvatar(
+        backgroundColor: AppColors.primaryBlue,
+        radius: 24,
+        child: Text(
+          doctor.name.isNotEmpty ? doctor.name[0] : '',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+        ),
+      ),
       title: Text(doctor.name),
       subtitle: Text("${doctor.profession} • ${doctor.state}"),
       trailing: Icon(Icons.arrow_forward_ios_rounded, size: 18),
