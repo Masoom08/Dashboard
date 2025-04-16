@@ -6,15 +6,20 @@ class DoctorViewModel extends ChangeNotifier {
   final DoctorRepository _repository;
 
   List<Doctor> _doctors = [];
-  List<Doctor> _serviceAgreedDoctors = [];
+  List<Doctor> _serviceAgreedDoctors = []; // serviceAgreed == false
+  List<Doctor> _approvedDoctors = [];      // serviceAgreed == true
+
   int _currentPage = 1;
   int _totalPages = 1;
   bool _isLoading = false;
   String _errorMessage = '';
   String _selectedCategory = '';
 
+  // Getters
   List<Doctor> get doctors => _doctors;
   List<Doctor> get serviceAgreedDoctors => _serviceAgreedDoctors;
+  List<Doctor> get approvedDoctors => _approvedDoctors;
+
   int get currentPage => _currentPage;
   int get totalPages => _totalPages;
   bool get isLoading => _isLoading;
@@ -23,7 +28,7 @@ class DoctorViewModel extends ChangeNotifier {
 
   DoctorViewModel({DoctorRepository? repository})
       : _repository = repository ?? DoctorRepository() {
-    fetchDoctors(); // Will also trigger fetchDoctorsByServiceAgreement inside
+    fetchDoctors();
   }
 
   Future<void> fetchDoctors() async {
@@ -37,8 +42,11 @@ class DoctorViewModel extends ChangeNotifier {
       _totalPages = (_doctors.length / 10).ceil();
       _currentPage = 1;
 
-      // ✅ Automatically fetch serviceAgreedDoctors after loading all
-      await fetchDoctorsByServiceAgreement();
+      // Fetch both pending and approved lists
+      await Future.wait([
+        fetchDoctorsByServiceAgreement(),        // serviceAgreed == false
+        fetchDoctorsByServiceAgreementAgreed(),  // serviceAgreed == true
+      ]);
     } catch (e) {
       _errorMessage = 'Failed to load doctors: ${e.toString()}';
     } finally {
@@ -51,10 +59,19 @@ class DoctorViewModel extends ChangeNotifier {
     try {
       final filteredDoctors = await _repository.fetchDoctorsByServiceAgreed(isAgreed: false);
       _serviceAgreedDoctors = filteredDoctors;
-      _totalPages = (_serviceAgreedDoctors.length / 10).ceil();
-      _currentPage = 1;
     } catch (e) {
-      _errorMessage = 'Failed to load doctors by service agreement: ${e.toString()}';
+      _errorMessage = 'Failed to load unapproved doctors: ${e.toString()}';
+    }
+    notifyListeners();
+  }
+
+  Future<void> fetchDoctorsByServiceAgreementAgreed() async {
+    _errorMessage = '';
+    try {
+      final filteredDoctors = await _repository.fetchDoctorsByServiceAgreed(isAgreed: true); // ✅ fixed
+      _approvedDoctors = filteredDoctors;
+    } catch (e) {
+      _errorMessage = 'Failed to load approved doctors: ${e.toString()}';
     }
     notifyListeners();
   }
@@ -108,7 +125,7 @@ class DoctorViewModel extends ChangeNotifier {
     _setLoading(true);
     try {
       await _repository.updateDoctorServiceAgreedStatus(doctorId);
-      await fetchDoctors(); // 🔁 Updates both all doctors and filtered list
+      await fetchDoctors(); // refreshes all lists
     } catch (e) {
       _errorMessage = 'Failed to update service agreed status: ${e.toString()}';
       notifyListeners();

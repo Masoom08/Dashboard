@@ -17,7 +17,7 @@ class _TotalUsersCardState extends State<TotalUsersCard> {
   @override
   Widget build(BuildContext context) {
     final doctorViewModel = Provider.of<DoctorViewModel>(context);
-    final doctors = doctorViewModel.doctors;
+    final doctors = doctorViewModel.serviceAgreedDoctors; // Use serviceAgreedDoctors
     final filteredOrthos = doctorViewModel.getFilteredDoctors("Orthopedics");
     final filteredCardios = doctorViewModel.getFilteredDoctors("Cardiology");
 
@@ -54,7 +54,7 @@ class _TotalUsersCardState extends State<TotalUsersCard> {
                         ? _buildSmallScreenHeader(context)
                         : _buildLargeScreenHeader(context),
                     const SizedBox(height: 8),
-                    Text("Doctors : ${doctors.length}", style: _whiteTextStyle),
+                    Text("Pending Doctors : ${doctorViewModel.serviceAgreedDoctors.length}", style: _whiteTextStyle), // Updated text
                     const SizedBox(height: 10),
 
                     // Category Filters
@@ -83,7 +83,7 @@ class _TotalUsersCardState extends State<TotalUsersCard> {
               Padding(
                 padding: const EdgeInsets.all(12.0),
                 child: Column(
-                  children: _getFilteredDoctors(doctorViewModel)
+                  children: _getFilteredDoctors(doctorViewModel) // This now filters the serviceAgreedDoctors
                       .take(2) // Show only 2 doctors
                       .map((doc) => _buildDoctorTile(doc))
                       .toList(),
@@ -167,10 +167,14 @@ class _TotalUsersCardState extends State<TotalUsersCard> {
 
   // Returns the filtered list of doctors based on selected category
   List<Doctor> _getFilteredDoctors(DoctorViewModel doctorViewModel) {
-    if (doctorViewModel.selectedCategory.isEmpty) {
-      return doctorViewModel.doctors;
-    }
-    return doctorViewModel.getFilteredDoctors(doctorViewModel.selectedCategory);
+    final pendingDoctors = doctorViewModel.approvedDoctors;
+    final category = doctorViewModel.selectedCategory;
+
+    if (category.isEmpty) return pendingDoctors;
+
+    return pendingDoctors
+        .where((doctor) => doctor.departments.contains(category))
+        .toList();
   }
 
   // Category filter button

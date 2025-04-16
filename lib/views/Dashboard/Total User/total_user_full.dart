@@ -59,7 +59,7 @@ class _TotalUserScreenState extends State<TotalUserScreen> {
         body: Consumer<DoctorViewModel>(
           builder: (context, viewModel, _) {
             final doctors = viewModel.selectedCategory.isEmpty
-                ? viewModel.doctors
+                ? viewModel.approvedDoctors
                 : viewModel.getFilteredDoctors(viewModel.selectedCategory);
 
             return Row(
