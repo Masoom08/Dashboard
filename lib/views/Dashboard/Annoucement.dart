@@ -1,8 +1,14 @@
 import 'package:dashboardN/views/Dashboard/sidebar.dart';
 import 'package:flutter/material.dart';
+import '../../models/user.dart';
 import '../../theme/colors.dart';
+import 'Header.dart';
 
 class AnnouncementScreen extends StatefulWidget {
+  final UserModel? currentUser; // Accept currentUser as a parameter
+
+  const AnnouncementScreen({Key? key, this.currentUser}): super(key: key);
+
   @override
   _AnnouncementScreenState createState() => _AnnouncementScreenState();
 }
@@ -20,29 +26,7 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.softWhite,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        title: Text(
-          selectedIndex == 3 ? "Announcements" : "Dashboard",
-          style: const TextStyle(
-            color: Colors.black,
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        actions: const [
-          Padding(
-            padding: EdgeInsets.only(right: 16.0),
-            child: CircleAvatar(
-              radius: 20,
-              backgroundImage: NetworkImage(
-                "https://randomuser.me/api/portraits/men/1.jpg",
-              ),
-            ),
-          ),
-        ],
-      ),
+
       body: Row(
         children: [
           Sidebar(
@@ -52,7 +36,13 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
           Expanded(
             child: Column(
               children: [
-                Container(
+
+                CustomHeader(
+                  title: selectedIndex == 3 ? "Message To All Users" : "Dashboard",
+                  currentUser: widget.currentUser,
+                ),
+
+                /*Container(
                   padding: EdgeInsets.all(16),
                   color: Colors.white,
                   width: double.infinity,
@@ -64,7 +54,7 @@ class _AnnouncementScreenState extends State<AnnouncementScreen> {
                       color: Colors.black,
                     ),
                   ),
-                ),
+                ),*/
                 Flexible(
                   child: SingleChildScrollView(
                     child: Padding(

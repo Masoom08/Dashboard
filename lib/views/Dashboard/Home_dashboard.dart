@@ -4,14 +4,16 @@ import '../../models/user.dart';
 import 'Annoucement.dart';
 import 'Consultant Request/consultant.dart';
 import 'Earning/earnings.dart';
+import 'Header.dart';
 import 'Overview Graph/overview.dart';
+import 'Profile.dart';
 import 'Total User/total_user.dart';
 import 'Sidebar.dart';
 
 class DashboardScreen extends StatefulWidget {
   final UserModel? currentUser; // Accept currentUser as a parameter
 
-  const DashboardScreen({super.key, this.currentUser});
+  const DashboardScreen({Key? key, this.currentUser}): super(key: key);
 
   @override
   _DashboardScreenState createState() => _DashboardScreenState();
@@ -32,7 +34,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
       backgroundColor: AppColors.softWhite,
       body: Row(
         children: [
-          // Sidebar - permanently fixed
           Sidebar(
             selectedIndex: selectedIndex,
             onItemSelected: onItemSelected,
@@ -43,36 +44,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
             child: Column(
               children: [
                 // Custom Header
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black12,
-                        blurRadius: 4,
-                        offset: Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    children: [
-                      Text(
-                        selectedIndex == 3 ? "Announcements" : "Dashboard",
-                        style: const TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                        ),
-                      ),
-                      const Spacer(),
-                      CircleAvatar(
-                        radius: 20,
-                        backgroundImage: _getProfileImage(widget.currentUser?.profilePicUrl),
-                      ),
-                    ],
-                  ),
+                CustomHeader(
+                  title: selectedIndex == 3 ? "Announcements" : "Dashboard",
+                  currentUser: widget.currentUser,
                 ),
+
 
                 // Main dashboard content
                 Expanded(

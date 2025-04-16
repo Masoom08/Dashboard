@@ -1,10 +1,9 @@
-
-import 'package:dashboardN/views/auth/reset_password_email.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../theme/colors.dart';
 import '../../viewmodels/user_viewmodel.dart';
+import '../auth/reset_password_email.dart';
 import '../Dashboard/Home_dashboard.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -17,23 +16,48 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool _isPasswordVisible = false;
-  final _formKey = GlobalKey<FormState>();
 
-  void _showError(String message) {
+  void _showError(BuildContext context, String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(message), backgroundColor: Colors.red),
     );
   }
 
+  Future<void> _handleLogin(UserViewModel loginVM) async {
+    if (_formKey.currentState?.validate() ?? false) {
+      bool success = await loginVM.login(
+        emailController.text.trim(),
+        passwordController.text.trim(),
+      );
+
+      if (context.mounted) {
+        if (success) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (_) => ChangeNotifierProvider.value(
+                value: loginVM,
+                child: const DashboardScreen(),
+              ),
+            ),
+          );
+        } else if (loginVM.errorMessage != null) {
+          _showError(context, loginVM.errorMessage!);
+        }
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width;
-    double screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
       body: LayoutBuilder(
-        builder: (context, constraints) {
+        builder: (_, constraints) {
           return Row(
             children: [
               Expanded(
@@ -41,9 +65,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   padding: const EdgeInsets.all(40.0),
                   child: SingleChildScrollView(
                     child: Consumer<UserViewModel>(
-                      builder: (context, loginVM, _) {
+                      builder: (_, loginVM, __) {
                         return Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Image.asset('assets/health.png', width: 60, height: 60),
@@ -63,10 +86,10 @@ class _LoginScreenState extends State<LoginScreen> {
                                     val == null || val.isEmpty ? 'Enter email' : null,
                                     autovalidateMode: AutovalidateMode.onUserInteraction,
                                     decoration: InputDecoration(
-                                      labelText: 'Your email',
+                                      labelText: 'Email',
                                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                                      fillColor: Colors.grey[200],
                                       filled: true,
+                                      fillColor: Colors.grey[200],
                                     ),
                                   ),
                                   const SizedBox(height: 15),
@@ -77,25 +100,20 @@ class _LoginScreenState extends State<LoginScreen> {
                                     val == null || val.isEmpty ? 'Enter password' : null,
                                     autovalidateMode: AutovalidateMode.onUserInteraction,
                                     decoration: InputDecoration(
-                                      labelText: 'Enter your password',
+                                      labelText: 'Password',
                                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-                                      fillColor: Colors.grey[200],
                                       filled: true,
+                                      fillColor: Colors.grey[200],
                                       suffixIcon: IconButton(
                                         icon: Icon(
-                                          _isPasswordVisible
-                                              ? Icons.visibility_off
-                                              : Icons.visibility,
+                                          _isPasswordVisible ? Icons.visibility_off : Icons.visibility,
                                         ),
                                         onPressed: () {
-                                          setState(() {
-                                            _isPasswordVisible = !_isPasswordVisible;
-                                          });
+                                          setState(() => _isPasswordVisible = !_isPasswordVisible);
                                         },
                                       ),
                                     ),
                                   ),
-                                  const SizedBox(height: 10),
                                   Align(
                                     alignment: Alignment.centerRight,
                                     child: TextButton(
@@ -103,7 +121,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                         Navigator.push(
                                           context,
                                           MaterialPageRoute(
-                                            builder: (context) => const ResetPasswordEmail(),
+                                            builder: (_) => const ResetPasswordEmail(),
                                           ),
                                         );
                                       },
@@ -117,30 +135,12 @@ class _LoginScreenState extends State<LoginScreen> {
                                     child: ElevatedButton(
                                       onPressed: loginVM.isLoading
                                           ? null
-                                          : () async {
-                                        if (_formKey.currentState!.validate()) {
-                                          bool success = await loginVM.login(
-                                            emailController.text.trim(),
-                                            passwordController.text.trim(),
-                                          );
-                                          if (success && context.mounted) {
-                                            Navigator.pushReplacement(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (_) => ChangeNotifierProvider.value(
-                                                  value: loginVM,
-                                                  child: const DashboardScreen(),
-                                                ),
-                                              ),
-                                            );
-                                          } else if (context.mounted &&
-                                              loginVM.errorMessage != null) {
-                                            _showError(loginVM.errorMessage!);
-                                          }
-                                        }
-                                      },
+                                          : () => _handleLogin(loginVM),
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: AppColors.primaryBlue,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(12),
+                                        ),
                                       ),
                                       child: loginVM.isLoading
                                           ? const CircularProgressIndicator(color: Colors.white)
@@ -159,39 +159,35 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               if (screenWidth > 800)
                 Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.only(right: 40),
-                    child: Stack(
-                      clipBehavior: Clip.none,
-                      children: [
-                        Positioned(
-                          top: screenHeight * 0.05,
-                          right: screenWidth * 0.05,
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(25),
-                            child: Image.asset(
-                              'assets/img_1.png',
-                              width: screenWidth * 0.35,
-                              height: screenHeight * 0.5,
-                              fit: BoxFit.cover,
-                            ),
+                  child: Stack(
+                    children: [
+                      Positioned(
+                        top: screenHeight * 0.05,
+                        right: screenWidth * 0.05,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(25),
+                          child: Image.asset(
+                            'assets/img_1.png',
+                            width: screenWidth * 0.35,
+                            height: screenHeight * 0.5,
+                            fit: BoxFit.cover,
                           ),
                         ),
-                        Positioned(
-                          top: screenHeight * 0.45,
-                          right: screenWidth * 0.02,
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(20),
-                            child: Image.asset(
-                              'assets/img_2.png',
-                              width: screenWidth * 0.15,
-                              height: screenHeight * 0.15,
-                              fit: BoxFit.cover,
-                            ),
+                      ),
+                      Positioned(
+                        top: screenHeight * 0.45,
+                        right: screenWidth * 0.02,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(20),
+                          child: Image.asset(
+                            'assets/img_2.png',
+                            width: screenWidth * 0.15,
+                            height: screenHeight * 0.15,
+                            fit: BoxFit.cover,
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
             ],

@@ -5,32 +5,22 @@ import 'package:provider/provider.dart';
 import '../../../../../../models/doctor.dart';
 import '../../../../../../theme/colors.dart';
 import '../../../../../../viewmodels/doctor_viewmodel.dart';
+import '../../../../models/user.dart';
+import '../../Header.dart';
 import '../../sidebar.dart';
 import 'pagination_controls.dart';
 
 
 class ConsultantRequestsScreen extends StatelessWidget {
+  final UserModel? currentUser; // Accept currentUser as a parameter
+
+  const ConsultantRequestsScreen({Key? key, this.currentUser}): super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (_) => DoctorViewModel(),
       child: Scaffold(
-        appBar: AppBar(
-          title: const Text("Consultant Requests"),
-          backgroundColor: Colors.white,
-          elevation: 0,
-          actions: const [
-            Padding(
-              padding: EdgeInsets.only(right: 16.0),
-              child: CircleAvatar(
-                radius: 20,
-                backgroundImage: NetworkImage(
-                  "https://randomuser.me/api/portraits/men/1.jpg",
-                ),
-              ),
-            ),
-          ],
-        ),
         body: Row(
           children: [
             Sidebar(
@@ -48,7 +38,9 @@ class ConsultantRequestsScreen extends StatelessWidget {
 }
 
 class ConsultantRequestsList extends StatelessWidget {
-  const ConsultantRequestsList({super.key});
+  final UserModel? currentUser;
+
+  const ConsultantRequestsList({Key? key, this.currentUser}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -63,6 +55,11 @@ class ConsultantRequestsList extends StatelessWidget {
 
     return Column(
       children: [
+        CustomHeader(
+          title: "Consultant Requests",
+          currentUser: currentUser,
+        ),
+        /*
         const Padding(
           padding: EdgeInsets.all(16),
           child: Align(
@@ -73,6 +70,8 @@ class ConsultantRequestsList extends StatelessWidget {
             ),
           ),
         ),
+
+         */
         Expanded(
           child: doctorVM.isLoading
               ? const Center(child: CircularProgressIndicator())

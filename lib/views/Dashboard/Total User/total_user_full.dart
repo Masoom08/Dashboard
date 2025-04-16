@@ -3,9 +3,12 @@ import 'package:provider/provider.dart';
 import '../../../../../models/doctor.dart';
 import '../../../../../theme/colors.dart';
 import '../../../../../viewmodels/doctor_viewmodel.dart';
+import '../../../models/user.dart';
+import '../Header.dart';
 import '../sidebar.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
-// ✅ Constant list moved outside to be used safely in const contexts
+
 const List<String> earningOptions = [
   "Today Earning",
   "This week Earning",
@@ -16,6 +19,9 @@ const List<String> earningOptions = [
 ];
 
 class TotalUserScreen extends StatefulWidget {
+  final UserModel? currentUser; // Accept currentUser as a parameter
+
+  const TotalUserScreen({Key? key, this.currentUser}): super(key: key);
   @override
   State<TotalUserScreen> createState() => _TotalUserScreenState();
 }
@@ -40,60 +46,60 @@ class _TotalUserScreenState extends State<TotalUserScreen> {
     return ChangeNotifierProvider(
       create: (_) => DoctorViewModel()..fetchDoctors(),
       child: Scaffold(
-        appBar: AppBar(
-          title: const Text("Users", style: TextStyle(color: Colors.black)),
-          backgroundColor: Colors.white,
-          elevation: 0,
-          actions: const [
-            Padding(
-              padding: EdgeInsets.only(right: 16.0),
-              child: CircleAvatar(
-                radius: 20,
-                backgroundImage: NetworkImage(
-                    "https://randomuser.me/api/portraits/men/1.jpg"),
-              ),
-            ),
-          ],
-          iconTheme: const IconThemeData(color: Colors.black),
+        drawer:Sidebar(
+          selectedIndex: 1,
+          onItemSelected: (int index) {},
         ),
-        body: Consumer<DoctorViewModel>(
-          builder: (context, viewModel, _) {
-            final doctors = viewModel.selectedCategory.isEmpty
-                ? viewModel.approvedDoctors
-                : viewModel.getFilteredDoctors(viewModel.selectedCategory);
+          body: Consumer<DoctorViewModel>(
+            builder: (context, viewModel, _) {
+              final doctors = viewModel.selectedCategory.isEmpty
+              ? viewModel.approvedDoctors
+              : viewModel.getFilteredDoctors(viewModel.selectedCategory);
 
-            return Row(
-              children: [
-                Sidebar(
-                  selectedIndex: 1,
-                  onItemSelected: (int index) {},
-                ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
+              return Row(
+                children: [
+                  Sidebar(
+                    selectedIndex: 0,
+                    onItemSelected: (int index) {},
+                  ),
+                  Expanded(
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildTopTabRow(viewModel),
-                        const SizedBox(height: 16),
-                        _buildDepartmentChips(viewModel),
-                        const SizedBox(height: 16),
-                        _buildStatsAndSearch(),
-                        const SizedBox(height: 16),
-                        viewModel.isLoading
+                    children: [
+                      CustomHeader(
+                        title: "Users",
+                        currentUser: widget.currentUser,
+                      ),
+
+                      Expanded(
+                        child: Padding(
+                        padding: EdgeInsets.all(screenWidth > 600 ? 16 : 8),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _buildTopTabRow(viewModel),
+                              const SizedBox(height: 16),
+                              _buildDepartmentChips(viewModel),
+                              const SizedBox(height: 16),
+                              _buildStatsAndSearch(),
+                              const SizedBox(height: 16),
+                              viewModel.isLoading
                             ? const Center(child: CircularProgressIndicator())
                             : _buildDoctorTable(context, doctors),
-                      ],
+                          ],
+                        ),
+                      ),
                     ),
-                  ),
+                  ],
                 ),
-              ],
-            );
-          },
-        ),
+              ),
+            ],
+          );
+        },
       ),
+    ),
     );
   }
+
 
   Widget _buildTopTabRow(DoctorViewModel viewModel) {
     return Row(
@@ -108,78 +114,6 @@ class _TotalUserScreenState extends State<TotalUserScreen> {
           ],
         ),
       ],
-    );
-  }
-  void _showSuccessDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      barrierDismissible: true,
-      builder: (_) => Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-        insetPadding: const EdgeInsets.symmetric(horizontal: 40),
-        backgroundColor: Colors.transparent,
-        child: Container(
-          width: 300,
-          height: 250,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(30),
-          ),
-          child: Stack(
-            children: [
-              Center(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      // Green glowing circle with check icon
-                      Container(
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          gradient: const RadialGradient(
-                            colors: [
-                              Color(0xCCB2FF59),
-                              Color(0xFF00E676),
-                            ],
-                            radius: 0.85,
-                          ),
-                        ),
-                        padding: const EdgeInsets.all(20),
-                        child: const Icon(
-                          Icons.check,
-                          color: Colors.white,
-                          size: 40,
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      const Text(
-                        "Letter Sended",
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: Color(0xFF333333),
-                          fontWeight: FontWeight.w600,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              // Close button inside the box
-              Positioned(
-                top: 12,
-                right: 12,
-                child: GestureDetector(
-                  onTap: () => Navigator.of(context).pop(),
-                  child: const Icon(Icons.close, color: Colors.black, size: 24),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 
@@ -220,7 +154,7 @@ class _TotalUserScreenState extends State<TotalUserScreen> {
       children: [
         _buildStatCard("Total Users", "10,000"),
         _buildStatCard("Doctors", "1,000"),
-        _buildStatCard("Orthopedics", "500"),
+        //_buildStatCard("Orthopedics", "500"),
         const Spacer(),
         SizedBox(
           width: 300,
@@ -305,8 +239,7 @@ class _TotalUserScreenState extends State<TotalUserScreen> {
                     items: earningOptions.map((String value) {
                       return DropdownMenuItem<String>(
                         value: value,
-                        child:
-                        Text(value, style: const TextStyle(fontSize: 13)),
+                        child: Text(value, style: const TextStyle(fontSize: 13)),
                       );
                     }).toList(),
                   ),
@@ -317,67 +250,51 @@ class _TotalUserScreenState extends State<TotalUserScreen> {
               const DataColumn(label: Text("Phone No.")),
               const DataColumn(label: Text("Actions")),
             ],
-            rows: doctors.map((doc) {
+            rows: doctors.map((doctor) {
               return DataRow(
                 cells: [
                   DataCell(Row(
                     children: [
-                      CircleAvatar(
-                        backgroundImage: NetworkImage(doc.profilePicUrl),
-                        radius: 20,
-                      ),
-                      const SizedBox(width: 10),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text("${doc.name} Doctor"),
-                          Text(
-                            "(${doc.profession})",
+                      doctor.profilePicUrl.isNotEmpty
+                          ? CachedNetworkImage(
+                        imageUrl: doctor.profilePicUrl,
+                        imageBuilder: (context, imageProvider) => CircleAvatar(
+                          backgroundImage: imageProvider,
+                          radius: 24,
+                        ),
+                        placeholder: (context, url) => const SizedBox(
+                          height: 48,
+                          width: 48,
+                          child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                        ),
+                        errorWidget: (context, url, error) => CircleAvatar(
+                          backgroundColor: AppColors.primaryBlue,
+                          radius: 20,
+                          child: Text(
+                            doctor.name.isNotEmpty ? doctor.name[0].toUpperCase() : '',
                             style: const TextStyle(
-                                color: Colors.grey, fontSize: 12),
+                                fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
                           ),
-                        ],
+                        ),
+                      )
+                          : CircleAvatar(
+                        backgroundColor: AppColors.primaryBlue,
+                        radius: 24,
+                        child: Text(
+                          doctor.name.isNotEmpty ? doctor.name[0].toUpperCase() : '',
+                          style: const TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                        ),
                       ),
+                      const SizedBox(width: 12),
+                      Text(doctor.name),
                     ],
                   )),
-                  const DataCell(Text("₹200")),
-                  const DataCell(Text("₹50")),
-                  DataCell(Text(doc.email)),
-                  DataCell(Text(doc.phone)),
-                  DataCell(
-                    PopupMenuButton<String>(
-                      icon: const Icon(Icons.more_vert, color: Colors.black),
-                      color: Colors.white,
-                      onSelected: (value) {
-                        if (value == 'Block') {
-                          showDialog(
-                            context: context,
-                            builder: (_) => _buildBlockDialog(context, doc.name, doc.profession),
-                          );
-                        } else if (value == 'View Documents') {
-                          showDialog(
-                            context: context,
-                            builder: (_) => _buildViewDocumentDialog(doc),
-                          );
-                        } else if (value == 'Warn') {
-                          showDialog(
-                            context: context,
-                            builder: (_) => _buildWarnDialog(context),
-                          );
-                        }
-                      },
-                      itemBuilder: (BuildContext context) {
-                        return ['View Documents', 'Warn', 'Block']
-                            .map((String choice) {
-                          return PopupMenuItem<String>(
-                            value: choice,
-                            child: Text(choice),
-                          );
-                        }).toList();
-                      },
-                    ),
-
-                  ),
+                  const DataCell(Text("₹4,000")),
+                  const DataCell(Text("₹1,500")),
+                  DataCell(Text(doctor.email)),
+                  DataCell(Text(doctor.phone)),
+                  const DataCell(Icon(Icons.more_vert)),
                 ],
               );
             }).toList(),
@@ -386,6 +303,7 @@ class _TotalUserScreenState extends State<TotalUserScreen> {
       ),
     );
   }
+
 
   Widget _buildBlockDialog(
       BuildContext context, String name, String specialization) {
@@ -502,6 +420,79 @@ class _TotalUserScreenState extends State<TotalUserScreen> {
           child: const Text("Send"),
         ),
       ],
+    );
+  }
+
+  void _showSuccessDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (_) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+        insetPadding: const EdgeInsets.symmetric(horizontal: 40),
+        backgroundColor: Colors.transparent,
+        child: Container(
+          width: 300,
+          height: 250,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(30),
+          ),
+          child: Stack(
+            children: [
+              Center(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      // Green glowing circle with check icon
+                      Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: const RadialGradient(
+                            colors: [
+                              Color(0xCCB2FF59),
+                              Color(0xFF00E676),
+                            ],
+                            radius: 0.85,
+                          ),
+                        ),
+                        padding: const EdgeInsets.all(20),
+                        child: const Icon(
+                          Icons.check,
+                          color: Colors.white,
+                          size: 40,
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      const Text(
+                        "Letter Sended",
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: Color(0xFF333333),
+                          fontWeight: FontWeight.w600,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              // Close button inside the box
+              Positioned(
+                top: 12,
+                right: 12,
+                child: GestureDetector(
+                  onTap: () => Navigator.of(context).pop(),
+                  child: const Icon(Icons.close, color: Colors.black, size: 24),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
