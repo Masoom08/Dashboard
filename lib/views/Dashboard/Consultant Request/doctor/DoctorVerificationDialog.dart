@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import 'package:dashboardN/viewmodels/doctor_viewmodel.dart';
+import 'package:provider/provider.dart';
+
 import '../../../../../../models/doctor.dart';
 import '../../../../../../theme/colors.dart';
 
@@ -23,6 +26,11 @@ class _DoctorVerificationDialogState extends State<DoctorVerificationDialog> {
     });
   }
 
+  bool get isAllAccepted =>
+      statusMap["education"] == "Accepted" &&
+          statusMap["registration"] == "Accepted" &&
+          statusMap["identity"] == "Accepted";
+
   Widget buildStatusButton(String key) {
     if (statusMap.containsKey(key)) {
       return Text(
@@ -42,9 +50,7 @@ class _DoctorVerificationDialogState extends State<DoctorVerificationDialog> {
       children: [
         Expanded(
           child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.Red,
-            ),
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.Red),
             onPressed: () => updateStatus(key, "Declined"),
             child: Text("Decline", style: TextStyle(color: Colors.white)),
           ),
@@ -52,9 +58,7 @@ class _DoctorVerificationDialogState extends State<DoctorVerificationDialog> {
         SizedBox(width: 10),
         Expanded(
           child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.Green,
-            ),
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.Green),
             onPressed: () => updateStatus(key, "Accepted"),
             child: Text("Accept", style: TextStyle(color: Colors.white)),
           ),
@@ -65,6 +69,8 @@ class _DoctorVerificationDialogState extends State<DoctorVerificationDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final doctorViewModel = Provider.of<DoctorViewModel>(context, listen: false);
+
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
       backgroundColor: AppColors.softWhite,
@@ -84,7 +90,7 @@ class _DoctorVerificationDialogState extends State<DoctorVerificationDialog> {
                 )
               ],
             ),
-            // Profile Row (dynamic)
+            // Doctor Info
             Row(
               children: [
                 CircleAvatar(
@@ -101,8 +107,7 @@ class _DoctorVerificationDialogState extends State<DoctorVerificationDialog> {
                             fontWeight: FontWeight.bold,
                             color: AppColors.black)),
                     Text("(${widget.doctor.profession})",
-                        style:
-                        TextStyle(fontSize: 14, color: AppColors.grey)),
+                        style: TextStyle(fontSize: 14, color: AppColors.grey)),
                   ],
                 ),
               ],
@@ -142,30 +147,33 @@ class _DoctorVerificationDialogState extends State<DoctorVerificationDialog> {
                   child: buildImageCard(
                     title: "Identity Proof",
                     key: "identity",
-                    imagePath:'assets/img.png',
+                    imagePath: 'assets/img.png',
                   ),
                 ),
               ],
             ),
             SizedBox(height: 25),
-            // Accept Final
-            Center(
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.LightGreen,
-                  padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+
+            // Show only if all sections accepted
+            if (isAllAccepted)
+              Center(
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.LightGreen,
+                    padding:
+                    EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                  ),
+                  onPressed: () async {
+                    await doctorViewModel.updateServiceAgreedStatus(widget.doctor.userId);
+                    Navigator.pop(context);
+                  },
+                  child: Text("Accept Applicant",
+                      style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold)),
                 ),
-                onPressed: () {
-                  updateStatus("final", "Accepted");
-                  Navigator.pop(context);
-                },
-                child: Text("Accept Applicant",
-                    style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold)),
               ),
-            ),
           ],
         ),
       ),
@@ -194,8 +202,7 @@ class _DoctorVerificationDialogState extends State<DoctorVerificationDialog> {
                   color: AppColors.black)),
           SizedBox(height: 5),
           ...info.map(
-                (line) => Text(line, style: TextStyle(color: AppColors.grey)),
-          ),
+                  (line) => Text(line, style: TextStyle(color: AppColors.grey))),
           SizedBox(height: 10),
           buildStatusButton(key),
         ],
@@ -235,7 +242,7 @@ class _DoctorVerificationDialogState extends State<DoctorVerificationDialog> {
                       InteractiveViewer(
                         minScale: 0.5,
                         maxScale: 4,
-                        child: Image.network(imagePath, fit: BoxFit.contain),
+                        child: Image.asset(imagePath, fit: BoxFit.contain),
                       ),
                       Positioned(
                         top: 10,
@@ -255,7 +262,7 @@ class _DoctorVerificationDialogState extends State<DoctorVerificationDialog> {
               child: SizedBox(
                 height: 80,
                 width: double.infinity,
-                child: Image.network(imagePath, fit: BoxFit.cover),
+                child: Image.asset(imagePath, fit: BoxFit.cover),
               ),
             ),
           ),

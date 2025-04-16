@@ -9,7 +9,7 @@ import 'doctor/consultant_full_screen.dart';
 
 class ConsultantRequests extends StatelessWidget {
   final bool showAll;
-  ConsultantRequests({this.showAll = false}); // default is false (Home preview)
+  ConsultantRequests({this.showAll = false});
 
   @override
   Widget build(BuildContext context) {
@@ -19,21 +19,15 @@ class ConsultantRequests extends StatelessWidget {
 
         return Consumer<DoctorViewModel>(
           builder: (context, viewModel, _) {
-            if (viewModel.isLoading) {
-              return const Padding(
-                padding: EdgeInsets.all(16),
-                child: Center(child: CircularProgressIndicator()),
-              );
-            }
-
-            if (viewModel.errorMessage.isNotEmpty) {
+            final doctors = viewModel.serviceAgreedDoctors; // Use the filtered list directly
+            if (doctors.isEmpty) {
               return Padding(
                 padding: const EdgeInsets.all(16),
-                child: Text(viewModel.errorMessage),
+                child: Center(child: Text(viewModel.errorMessage.isNotEmpty ? viewModel.errorMessage : 'No doctors found')),
               );
             }
 
-            final List<Doctor> doctors = viewModel.doctors;
+            // Determine which doctors to display based on the 'showAll' flag
             final List<Doctor> displayedDoctors = showAll ? doctors : doctors.take(2).toList();
 
             return Card(
@@ -101,32 +95,31 @@ class ConsultantRequests extends StatelessWidget {
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          // Displaying the profile picture or fallback text (first letter of name)
+                          // Profile Picture
                           Container(
                             width: 48,
                             height: 48,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: AppColors.primaryBlue, // Default background color
+                              color: AppColors.primaryBlue,
                             ),
                             child: doctor.profilePicUrl.isNotEmpty
                                 ? CachedNetworkImage(
                               imageUrl: doctor.profilePicUrl,
                               imageBuilder: (context, imageProvider) {
-                                return CircleAvatar(
-                                  backgroundImage: imageProvider,
-                                );
+                                return CircleAvatar(backgroundImage: imageProvider);
                               },
-                              placeholder: (context, url) => Center(child: CircularProgressIndicator()),
+                              placeholder: (context, url) =>
+                                  Center(child: CircularProgressIndicator()),
                               errorWidget: (context, url, error) => Center(
                                   child: Text(
-                                    doctor.name.isNotEmpty ? doctor.name[0] : '', // Fallback text
+                                    doctor.name.isNotEmpty ? doctor.name[0] : '',
                                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
                                   )),
                             )
                                 : Center(
                               child: Text(
-                                doctor.name.isNotEmpty ? doctor.name[0] : '', // Fallback text
+                                doctor.name.isNotEmpty ? doctor.name[0] : '',
                                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
                               ),
                             ),
