@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../theme/colors.dart';
-import '../../viewmodels/user_viewmodel.dart';
+import '../../viewmodels/signup_viewmodel.dart'; // Use SignupViewModel here
 import '../auth/reset_password_email.dart';
 import '../Dashboard/Home_dashboard.dart';
+import '../auth/signup_view.dart'; // Import the SignUpView
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -14,38 +15,66 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+
   bool _isPasswordVisible = false;
 
-  void _showError(BuildContext context, String message) {
+  void _showSnackBar(String msg, {Color color = Colors.red}) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.red),
+      SnackBar(content: Text(msg), backgroundColor: color),
     );
   }
 
-  Future<void> _handleLogin(UserViewModel loginVM) async {
+  Future<void> _handleLogin(SignupViewModel viewModel) async {
     if (_formKey.currentState?.validate() ?? false) {
-      bool success = await loginVM.login(
-        emailController.text.trim(),
-        passwordController.text.trim(),
-      );
+      final email = _emailController.text.trim();
+      final password = _passwordController.text.trim();
 
-      if (context.mounted) {
-        if (success) {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (_) => ChangeNotifierProvider.value(
-                value: loginVM,
-                child: const DashboardScreen(),
-              ),
+      bool success = await viewModel.loginUser(email, password); // using loginUser from SignupViewModel
+
+      if (!mounted) return;
+
+      if (success) {
+        _showSnackBar("✅ Login successful", color: Colors.green);
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => ChangeNotifierProvider.value(
+              value: viewModel,
+              child: const DashboardScreen(),
             ),
-          );
-        } else if (loginVM.errorMessage != null) {
-          _showError(context, loginVM.errorMessage!);
-        }
+          ),
+        );
+      } else {
+        _showSnackBar(viewModel.errorMessage ?? "❌ Login failed");
+      }
+    }
+  }
+
+  Future<void> _handleSignUp(SignupViewModel viewModel) async {
+    if (_formKey.currentState?.validate() ?? false) {
+      final email = _emailController.text.trim();
+      final password = _passwordController.text.trim();
+
+      bool success = await viewModel.signUp(email, password); // using signUp from SignupViewModel
+
+      if (!mounted) return;
+
+      if (success) {
+        _showSnackBar("✅ Sign-up successful", color: Colors.green);
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) => ChangeNotifierProvider.value(
+              value: viewModel,
+              child: const DashboardScreen(),
+            ),
+          ),
+        );
+      } else {
+        _showSnackBar(viewModel.errorMessage ?? "❌ Sign-up failed");
       }
     }
   }
@@ -64,8 +93,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Padding(
                   padding: const EdgeInsets.all(40.0),
                   child: SingleChildScrollView(
-                    child: Consumer<UserViewModel>(
-                      builder: (_, loginVM, __) {
+                    child: Consumer<SignupViewModel>( // Using SignupViewModel
+                      builder: (_, viewModel, __) {
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -81,36 +110,44 @@ class _LoginScreenState extends State<LoginScreen> {
                               child: Column(
                                 children: [
                                   TextFormField(
-                                    controller: emailController,
+                                    controller: _emailController,
                                     validator: (val) =>
-                                    val == null || val.isEmpty ? 'Enter email' : null,
-                                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                                    val == null || !val.contains('@')
+                                        ? 'Enter valid email'
+                                        : null,
                                     decoration: InputDecoration(
                                       labelText: 'Email',
-                                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
                                       filled: true,
                                       fillColor: Colors.grey[200],
                                     ),
                                   ),
                                   const SizedBox(height: 15),
                                   TextFormField(
-                                    controller: passwordController,
+                                    controller: _passwordController,
                                     obscureText: !_isPasswordVisible,
                                     validator: (val) =>
-                                    val == null || val.isEmpty ? 'Enter password' : null,
-                                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                                    val == null || val.length < 6
+                                        ? 'Password too short'
+                                        : null,
                                     decoration: InputDecoration(
                                       labelText: 'Password',
-                                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
                                       filled: true,
                                       fillColor: Colors.grey[200],
                                       suffixIcon: IconButton(
                                         icon: Icon(
-                                          _isPasswordVisible ? Icons.visibility_off : Icons.visibility,
+                                          _isPasswordVisible
+                                              ? Icons.visibility_off
+                                              : Icons.visibility,
                                         ),
-                                        onPressed: () {
-                                          setState(() => _isPasswordVisible = !_isPasswordVisible);
-                                        },
+                                        onPressed: () => setState(() {
+                                          _isPasswordVisible = !_isPasswordVisible;
+                                        }),
                                       ),
                                     ),
                                   ),
@@ -133,20 +170,50 @@ class _LoginScreenState extends State<LoginScreen> {
                                     width: double.infinity,
                                     height: 50,
                                     child: ElevatedButton(
-                                      onPressed: loginVM.isLoading
+                                      onPressed: viewModel.isLoading
                                           ? null
-                                          : () => _handleLogin(loginVM),
+                                          : () => _handleLogin(viewModel),
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: AppColors.primaryBlue,
                                         shape: RoundedRectangleBorder(
                                           borderRadius: BorderRadius.circular(12),
                                         ),
                                       ),
-                                      child: loginVM.isLoading
+                                      child: viewModel.isLoading
                                           ? const CircularProgressIndicator(color: Colors.white)
                                           : const Text('Login', style: TextStyle(color: Colors.white)),
                                     ),
                                   ),
+                                  const SizedBox(height: 20),
+                                  // Only show the "Sign Up" button if the screen width is smaller than 800px (i.e., for mobile devices)
+                                  if (screenWidth < 800) ...[
+                                    SizedBox(
+                                      width: double.infinity,
+                                      height: 50,
+                                      child: ElevatedButton(
+                                        onPressed: viewModel.isLoading
+                                            ? null
+                                            : () {
+                                          // Navigate to SignUpView
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (_) => const SignupView(), // Navigate to the SignUpView screen
+                                            ),
+                                          );
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: Colors.green, // Sign-up button color
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(12),
+                                          ),
+                                        ),
+                                        child: viewModel.isLoading
+                                            ? const CircularProgressIndicator(color: Colors.white)
+                                            : const Text('Sign Up', style: TextStyle(color: Colors.white)), // Sign-up text
+                                      ),
+                                    ),
+                                  ],
                                 ],
                               ),
                             ),
@@ -157,7 +224,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
               ),
-              if (screenWidth > 800)
+              if (screenWidth > 800) // Show images only on larger screens
                 Expanded(
                   child: Stack(
                     children: [

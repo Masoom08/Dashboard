@@ -1,6 +1,7 @@
-
+import 'package:dashboardN/services/auth_service.dart';
 import 'package:dashboardN/viewmodels/doctor_viewmodel.dart';
 import 'package:dashboardN/viewmodels/feedback_viewmodel.dart';
+import 'package:dashboardN/viewmodels/signup_viewmodel.dart';
 import 'package:dashboardN/viewmodels/user_viewmodel.dart';
 import 'package:dashboardN/viewmodels/wallet_view_model.dart';
 import 'package:dashboardN/views/auth/login.dart';
@@ -16,7 +17,7 @@ void main() async {
       apiKey: "AIzaSyBNijYd0UDjhJ5h6hOBTffHlc8BSkiKus8",
       authDomain: "advilo-769f1.firebaseapp.com",
       projectId: "advilo-769f1",
-      storageBucket: "advilo-769f1.appspot.com", // 🔧 Fixed .app to .com
+      storageBucket: "advilo-769f1.appspot.com",
       messagingSenderId: "752989842418",
       appId: "1:752989842418:web:672537de4581268375d96b",
       measurementId: "G-MBFDZRCCLK",
@@ -30,6 +31,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => UserViewModel()),
         ChangeNotifierProvider(create: (_) => FeedbackViewModel()),
         ChangeNotifierProvider(create: (_) => EarningsViewModel()),
+        ChangeNotifierProvider(create: (_) => SignupViewModel(AuthService())), // Fixed the missing provider here
       ],
       child: const MyApp(),
     ),

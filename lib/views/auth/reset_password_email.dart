@@ -1,12 +1,50 @@
-
-import 'package:dashboardN/views/auth/reset_password_new.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:dashboardN/views/auth/reset_password_new.dart'; // New password reset page
 
 import '../../theme/colors.dart';
 
-
-class ResetPasswordEmail extends StatelessWidget {
+class ResetPasswordEmail extends StatefulWidget {
   const ResetPasswordEmail({super.key});
+
+  @override
+  State<ResetPasswordEmail> createState() => _ResetPasswordEmailState();
+}
+
+class _ResetPasswordEmailState extends State<ResetPasswordEmail> {
+  final _emailController = TextEditingController();
+  bool _isLoading = false;
+  String _errorMessage = '';
+
+  Future<void> _sendPasswordResetEmail() async {
+    String email = _emailController.text.trim();
+
+    if (email.isEmpty) {
+      setState(() {
+        _errorMessage = 'Please enter your email address.';
+      });
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+      _errorMessage = ''; // Clear previous errors
+    });
+
+    try {
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+      if (!mounted) return; // Ensure widget is still mounted before navigating
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const ResetPasswordNew()), // Navigate to reset new password screen
+      );
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+        _errorMessage = 'Failed to send reset email: ${e.toString()}';
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +63,7 @@ class ResetPasswordEmail extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Image.asset('assets/health.png',width: 60, height: 60,),
+                      Image.asset('assets/health.png', width: 60, height: 60),
                       const SizedBox(height: 20),
                       const Text(
                         'Reset your Password',
@@ -33,6 +71,7 @@ class ResetPasswordEmail extends StatelessWidget {
                       ),
                       const SizedBox(height: 20),
                       TextField(
+                        controller: _emailController,
                         decoration: InputDecoration(
                           labelText: 'Your email',
                           border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
@@ -41,20 +80,23 @@ class ResetPasswordEmail extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: 20),
+                      if (_errorMessage.isNotEmpty)
+                        Text(
+                          _errorMessage,
+                          style: const TextStyle(color: Colors.red),
+                        ),
+                      const SizedBox(height: 20),
                       SizedBox(
                         width: double.infinity,
                         height: 50,
                         child: ElevatedButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => const ResetPasswordNew()),
-                            );
-                          },
+                          onPressed: _isLoading ? null : _sendPasswordResetEmail,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.primaryBlue,
                           ),
-                          child: const Text('Send', style: TextStyle(color: Colors.white)),
+                          child: _isLoading
+                              ? const CircularProgressIndicator(color: Colors.white)
+                              : const Text('Send', style: TextStyle(color: Colors.white)),
                         ),
                       ),
                     ],
@@ -75,8 +117,8 @@ class ResetPasswordEmail extends StatelessWidget {
                             borderRadius: BorderRadius.circular(25),
                             child: Image.asset(
                               'assets/img_1.png',
-                              width: screenWidth * 0.35, // 35% of screen width
-                              height: screenHeight * 0.5, // 50% of screen height
+                              width: screenWidth * 0.35,
+                              height: screenHeight * 0.5,
                               fit: BoxFit.cover,
                             ),
                           ),
@@ -88,8 +130,8 @@ class ResetPasswordEmail extends StatelessWidget {
                             borderRadius: BorderRadius.circular(20),
                             child: Image.asset(
                               'assets/img_2.png',
-                              width: screenWidth * 0.15, // 15% of screen width
-                              height: screenHeight * 0.15, // 15% of screen height
+                              width: screenWidth * 0.15,
+                              height: screenHeight * 0.15,
                               fit: BoxFit.cover,
                             ),
                           ),
