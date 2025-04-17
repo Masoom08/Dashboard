@@ -16,7 +16,7 @@ class TotalUsersCard extends StatefulWidget {
 
 class _TotalUsersCardState extends State<TotalUsersCard> {
   bool _showMore = false;
-  bool _isShowingDoctors  = false;
+  bool _isShowingDoctors  = true;
 
   @override
   Widget build(BuildContext context) {

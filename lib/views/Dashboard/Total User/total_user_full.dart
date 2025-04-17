@@ -60,20 +60,20 @@ class _TotalUserScreenState extends State<TotalUserScreen> {
           selectedIndex: 1,
           onItemSelected: (int index) {},
         ),
-          body: Consumer<DoctorViewModel>(
-            builder: (context, viewModel, _) {
-              final doctors = viewModel.selectedCategory.isEmpty
-              ? viewModel.approvedDoctors
-              : viewModel.getFilteredDoctors(viewModel.selectedCategory);
+        body: Consumer<DoctorViewModel>(
+          builder: (context, viewModel, _) {
+            final doctors = viewModel.selectedCategory.isEmpty
+                ? viewModel.approvedDoctors
+                : viewModel.getFilteredDoctors(viewModel.selectedCategory);
 
-              return Row(
-                children: [
-                  Sidebar(
-                    selectedIndex: 0,
-                    onItemSelected: (int index) {},
-                  ),
-                  Expanded(
-                    child: Column(
+            return Row(
+              children: [
+                Sidebar(
+                  selectedIndex: 0,
+                  onItemSelected: (int index) {},
+                ),
+                Expanded(
+                  child: Column(
                     children: [
                       CustomHeader(
                         title: "Users",
@@ -82,9 +82,9 @@ class _TotalUserScreenState extends State<TotalUserScreen> {
 
                       Expanded(
                         child: Padding(
-                        padding: EdgeInsets.all(screenWidth > 600 ? 16 : 8),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                          padding: EdgeInsets.all(screenWidth > 600 ? 16 : 8),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               _buildTopTabRow(viewModel),
                               const SizedBox(height: 16),
@@ -93,20 +93,20 @@ class _TotalUserScreenState extends State<TotalUserScreen> {
                               _buildStatsAndSearch(),
                               const SizedBox(height: 16),
                               viewModel.isLoading
-                            ? const Center(child: CircularProgressIndicator())
-                            : _buildDoctorTable(context, doctors),
-                          ],
+                                  ? const Center(child: CircularProgressIndicator())
+                                  : _buildDoctorTable(context, doctors),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            ],
-          );
-        },
+              ],
+            );
+          },
+        ),
       ),
-    ),
     );
   }
 
@@ -124,6 +124,79 @@ class _TotalUserScreenState extends State<TotalUserScreen> {
           ],
         ),
       ],
+    );
+  }
+
+  void _showSuccessDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (_) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+        insetPadding: const EdgeInsets.symmetric(horizontal: 40),
+        backgroundColor: Colors.transparent,
+        child: Container(
+          width: 300,
+          height: 250,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(30),
+          ),
+          child: Stack(
+            children: [
+              Center(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      // Green glowing circle with check icon
+                      Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: const RadialGradient(
+                            colors: [
+                              Color(0xCCB2FF59),
+                              Color(0xFF00E676),
+                            ],
+                            radius: 0.85,
+                          ),
+                        ),
+                        padding: const EdgeInsets.all(20),
+                        child: const Icon(
+                          Icons.check,
+                          color: Colors.white,
+                          size: 40,
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      const Text(
+                        "Letter Sended",
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: Color(0xFF333333),
+                          fontWeight: FontWeight.w600,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              // Close button inside the box
+              Positioned(
+                top: 12,
+                right: 12,
+                child: GestureDetector(
+                  onTap: () => Navigator.of(context).pop(),
+                  child: const Icon(Icons.close, color: Colors.black, size: 24),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -285,15 +358,14 @@ class _TotalUserScreenState extends State<TotalUserScreen> {
               const DataColumn(label: Text("Phone No.")),
               const DataColumn(label: Text("Actions")),
             ],
-            rows: doctors.map((doctor) {
+            rows: doctors.map((doc) {
               return DataRow(
                 cells: [
-                  DataCell(
-                      Row(
+                  DataCell(Row(
                     children: [
-                      doctor.profilePicUrl.isNotEmpty
+                      doc.profilePicUrl.isNotEmpty
                           ? CachedNetworkImage(
-                        imageUrl: doctor.profilePicUrl,
+                        imageUrl: doc.profilePicUrl,
                         imageBuilder: (context, imageProvider) => CircleAvatar(
                           backgroundImage: imageProvider,
                           radius: 24,
@@ -307,7 +379,7 @@ class _TotalUserScreenState extends State<TotalUserScreen> {
                           backgroundColor: AppColors.primaryBlue,
                           radius: 20,
                           child: Text(
-                            doctor.name.isNotEmpty ? doctor.name[0].toUpperCase() : '',
+                            doc.name.isNotEmpty ? doc.name[0].toUpperCase() : '',
                             style: const TextStyle(
                                 fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
                           ),
@@ -317,29 +389,62 @@ class _TotalUserScreenState extends State<TotalUserScreen> {
                         backgroundColor: AppColors.primaryBlue,
                         radius: 24,
                         child: Text(
-                          doctor.name.isNotEmpty ? doctor.name[0].toUpperCase() : '',
+                          doc.name.isNotEmpty ? doc.name[0].toUpperCase() : '',
                           style: const TextStyle(
                               fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
                         ),
                       ),
-                      const SizedBox(width: 12),
-                      Text(doctor.name),
+                      const SizedBox(width: 10),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text("${doc.name} Doctor"),
+                          Text(
+                            "(${doc.profession})",
+                            style: const TextStyle(
+                                color: Colors.grey, fontSize: 12),
+                          ),
+                        ],
+                      ),
                     ],
                   )),
-                  const DataCell(Text("₹4,000")),
-                  const DataCell(Text("₹1,500")),
-                  DataCell(Text(doctor.email)),
-                  DataCell(Text(doctor.phone)),
+                  const DataCell(Text("₹200")),
+                  const DataCell(Text("₹50")),
+                  DataCell(Text(doc.email)),
+                  DataCell(Text(doc.phone)),
                   DataCell(
-                    GestureDetector(
-                      onTap: () {
-                        showDialog(
-                          context: context,
-                          builder: (context) => _buildWarnDialog(context),
-                        );
-                        },
-                      child: const Icon(Icons.more_vert),
+                    PopupMenuButton<String>(
+                      icon: const Icon(Icons.more_vert, color: Colors.black),
+                      color: Colors.white,
+                      onSelected: (value) {
+                        if (value == 'Block') {
+                          showDialog(
+                            context: context,
+                            builder: (_) => _buildBlockDialog(context, doc.name, doc.profession),
+                          );
+                        } else if (value == 'View Documents') {
+                          showDialog(
+                            context: context,
+                            builder: (_) => _buildViewDocumentDialog(doc),
+                          );
+                        } else if (value == 'Warn') {
+                          showDialog(
+                            context: context,
+                            builder: (_) => _buildWarnDialog(context),
+                          );
+                        }
+                      },
+                      itemBuilder: (BuildContext context) {
+                        return ['View Documents', 'Warn', 'Block']
+                            .map((String choice) {
+                          return PopupMenuItem<String>(
+                            value: choice,
+                            child: Text(choice),
+                          );
+                        }).toList();
+                      },
                     ),
+
                   ),
                 ],
               );
@@ -468,81 +573,6 @@ class _TotalUserScreenState extends State<TotalUserScreen> {
       ],
     );
   }
-
-  void _showSuccessDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      barrierDismissible: true,
-      builder: (_) => Dialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-        insetPadding: const EdgeInsets.symmetric(horizontal: 40),
-        backgroundColor: Colors.transparent,
-        child: Container(
-          width: 300,
-          height: 250,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(30),
-          ),
-          child: Stack(
-            children: [
-              Center(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      // Green glowing circle with check icon
-                      Container(
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          gradient: const RadialGradient(
-                            colors: [
-                              Color(0xCCB2FF59),
-                              Color(0xFF00E676),
-                            ],
-                            radius: 0.85,
-                          ),
-                        ),
-                        padding: const EdgeInsets.all(20),
-                        child: const Icon(
-                          Icons.check,
-                          color: Colors.white,
-                          size: 40,
-                        ),
-                      ),
-                      const SizedBox(height: 24),
-                      const Text(
-                        "Letter Sended",
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: Color(0xFF333333),
-                          fontWeight: FontWeight.w600,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              // Close button inside the box
-              Positioned(
-                top: 12,
-                right: 12,
-                child: GestureDetector(
-                  onTap: () => Navigator.of(context).pop(),
-                  child: const Icon(Icons.close, color: Colors.black, size: 24),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-
 
   Widget _buildViewDocumentDialog(Doctor doc) {
     return AlertDialog(
