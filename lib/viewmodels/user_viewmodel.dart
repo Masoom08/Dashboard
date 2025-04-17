@@ -5,6 +5,10 @@ import '../repository/user_repository.dart';
 class UserViewModel extends ChangeNotifier {
   final UserRepository _repository = UserRepository();
 
+  List<UserModel> _allUsers = [];
+  List<UserModel> get allUsers => _allUsers;
+
+
   UserModel? _user;
   UserModel? get user => _user;
 
@@ -55,4 +59,23 @@ class UserViewModel extends ChangeNotifier {
     notifyListeners();  // Notify UI to update
     print('ℹ️ User logged out');
   }
+
+  Future<void> fetchAllUsers() async {
+    _isLoading = true;
+    notifyListeners();
+
+    try {
+      final users = await _repository.fetchAllUsers();
+      _allUsers = users;
+      _errorMessage = null;
+      print('✅ Fetched ${users.length} users');
+    } catch (e) {
+      _errorMessage = e.toString();
+      print('🔴 Error fetching users: $e');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
 }

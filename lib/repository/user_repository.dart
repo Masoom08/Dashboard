@@ -36,4 +36,17 @@ class UserRepository {
       throw Exception('Login failed: $e');
     }
   }
+  Future<List<UserModel>> fetchAllUsers() async {
+    try {
+      final snapshot = await _firestore.collection('users').get();
+      return snapshot.docs.map((doc) {
+        final data = doc.data();
+        return UserModel.fromMap(data);
+      }).toList();
+    } catch (e) {
+      print('🔥 Error fetching all users: $e');
+      throw Exception('Failed to fetch users: $e');
+    }
+  }
+
 }

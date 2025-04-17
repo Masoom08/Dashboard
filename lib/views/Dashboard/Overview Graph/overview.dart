@@ -74,7 +74,7 @@ class _OverviewGraphState extends State<OverviewGraph> {
                               fontSize: 18, fontWeight: FontWeight.bold)),
                       DropdownButton<String>(
                         value: filterType,
-                        items: ['Date', 'Month', 'Year']
+                        items: [/*'Date',*/ 'Month', 'Year']
                             .map((e) => DropdownMenuItem<String>(
                           value: e,
                           child: Text(e),

@@ -29,13 +29,23 @@ class TotalUserScreen extends StatefulWidget {
 class _TotalUserScreenState extends State<TotalUserScreen> {
   String selectedEarningType = "Today Earning"; // Initial value
 
-  final List<String> departments = [
+  final List<String> initialDepartments = [
+    "All Doctors",
     "Orthopedics",
     "Dentists",
     "Cardiologists",
     "Neurologists",
-    "Show more"
   ];
+
+  final List<String> extraDepartments = [
+    "Ayurveda",
+    "Unani",
+    "Veterinary",
+    "General Physician",
+  ];
+
+  bool showMoreDepartments = false;
+
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _paragraphController = TextEditingController();
 
@@ -137,9 +147,34 @@ class _TotalUserScreenState extends State<TotalUserScreen> {
   }
 
   Widget _buildDepartmentChips(DoctorViewModel viewModel) {
+    List<String> displayedDepartments = List.from(initialDepartments);
+
+    if (showMoreDepartments) {
+      displayedDepartments.addAll(extraDepartments);
+    }
+
+    displayedDepartments.add(showMoreDepartments ? "Show less" : "Show more");
+
     return Wrap(
       spacing: 8,
-      children: departments.map((dept) {
+      children: displayedDepartments.map((dept) {
+        if (dept == "Show more" || dept == "Show less") {
+          return ActionChip(
+            label: Text(dept),
+            onPressed: () {
+              setState(() {
+                showMoreDepartments = !showMoreDepartments;
+              });
+            },
+          );
+        }
+        if (dept == "All Doctors") {
+          return ChoiceChip(
+            label: Text(dept),
+            selected: viewModel.selectedCategory == "",
+            onSelected: (_) => viewModel.setCategory(""),
+          );
+        }
         return ChoiceChip(
           label: Text(dept),
           selected: viewModel.selectedCategory == dept,
@@ -253,7 +288,8 @@ class _TotalUserScreenState extends State<TotalUserScreen> {
             rows: doctors.map((doctor) {
               return DataRow(
                 cells: [
-                  DataCell(Row(
+                  DataCell(
+                      Row(
                     children: [
                       doctor.profilePicUrl.isNotEmpty
                           ? CachedNetworkImage(
@@ -294,7 +330,17 @@ class _TotalUserScreenState extends State<TotalUserScreen> {
                   const DataCell(Text("₹1,500")),
                   DataCell(Text(doctor.email)),
                   DataCell(Text(doctor.phone)),
-                  const DataCell(Icon(Icons.more_vert)),
+                  DataCell(
+                    GestureDetector(
+                      onTap: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) => _buildWarnDialog(context),
+                        );
+                        },
+                      child: const Icon(Icons.more_vert),
+                    ),
+                  ),
                 ],
               );
             }).toList(),
