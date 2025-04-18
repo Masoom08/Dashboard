@@ -48,4 +48,14 @@ class UserRepository {
       throw Exception('Failed to fetch users: $e');
     }
   }
+  Future<int> countUsers() async {
+    try {
+      final snapshot = await _firestore.collection('users').get();
+      return snapshot.docs.length;
+    } catch (e) {
+      print('Error counting users: $e');
+      throw Exception('Failed to count users: $e');
+    }
+  }
+
 }

@@ -17,6 +17,8 @@ class UserViewModel extends ChangeNotifier {
   String? _errorMessage;
   String? get errorMessage => _errorMessage;
 
+  int get totalUsers => _allUsers.length;
+
   Future<bool> login(String email, String password) async {
     _isLoading = true;
     _errorMessage = null;

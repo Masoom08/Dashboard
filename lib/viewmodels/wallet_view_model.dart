@@ -137,13 +137,12 @@ class EarningsViewModel extends ChangeNotifier {
         end = temp;
       }
 
-      final wallets = await _walletService.fetchAllWallets();
+      final earnings = await _walletService.calculateEarningsBetweenDates(
+        startDate: start,
+        endDate: end,
+      );
 
-      final filtered = wallets.where((wallet) =>
-      wallet.walletCreatedAt.isAfter(start.subtract(const Duration(days: 1))) &&
-          wallet.walletCreatedAt.isBefore(end.add(const Duration(days: 1)))).toList();
-
-      _earnings = filtered.fold(0.0, (sum, wallet) => sum + (wallet.balance * 0.05));
+      _earnings = earnings;
     } catch (e) {
       _earnings = 0.0;
     } finally {
@@ -151,4 +150,5 @@ class EarningsViewModel extends ChangeNotifier {
       notifyListeners();
     }
   }
+
 }

@@ -58,8 +58,8 @@ class _TotalUsersCardState extends State<TotalUsersCard> {
                   children: [
                     // Responsive Top Row
                     isSmall
-                        ? _buildSmallScreenHeader(context)
-                        : _buildLargeScreenHeader(context),
+                        ? _buildSmallScreenHeader(context,userViewModel)
+                        : _buildLargeScreenHeader(context,userViewModel),
                     const SizedBox(height: 8),
                     Text("Pending Doctors : ${doctorViewModel.serviceAgreedDoctors.length}", style: _whiteTextStyle), // Updated text
                     const SizedBox(height: 10),
@@ -131,11 +131,11 @@ class _TotalUsersCardState extends State<TotalUsersCard> {
   }
 
   // Header for small screen
-  Widget _buildSmallScreenHeader(BuildContext context) {
+  Widget _buildSmallScreenHeader(BuildContext context, UserViewModel userViewModel) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text("Total Users : 10,000", style: _whiteTextStyle),
+        Text("Total Users : ${userViewModel.totalUsers}", style: _whiteTextStyle),
         const SizedBox(height: 8),
         Wrap(
           spacing: 8,
@@ -186,11 +186,11 @@ class _TotalUsersCardState extends State<TotalUsersCard> {
   }
 
   // Header for large screen
-  Widget _buildLargeScreenHeader(BuildContext context) {
+  Widget _buildLargeScreenHeader(BuildContext context, UserViewModel userViewModel) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text("Total Users : 10,000", style: _whiteTextStyle),
+        Text("Total Users : ${userViewModel.totalUsers}", style: _whiteTextStyle),
         Row(
           children: [
             ElevatedButton(onPressed: () {

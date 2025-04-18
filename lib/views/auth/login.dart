@@ -32,12 +32,12 @@ class _LoginScreenState extends State<LoginScreen> {
       final email = _emailController.text.trim();
       final password = _passwordController.text.trim();
 
-      bool success = await viewModel.loginUser(email, password); // using loginUser from SignupViewModel
+      bool success = await viewModel.loginUser(email, password);
 
       if (!mounted) return;
 
       if (success) {
-        _showSnackBar("✅ Login successful", color: Colors.green);
+        _showSnackBar("Login successful", color: Colors.green);
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
@@ -48,33 +48,7 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         );
       } else {
-        _showSnackBar(viewModel.errorMessage ?? "❌ Login failed");
-      }
-    }
-  }
-
-  Future<void> _handleSignUp(SignupViewModel viewModel) async {
-    if (_formKey.currentState?.validate() ?? false) {
-      final email = _emailController.text.trim();
-      final password = _passwordController.text.trim();
-
-      bool success = await viewModel.signUp(email, password); // using signUp from SignupViewModel
-
-      if (!mounted) return;
-
-      if (success) {
-        _showSnackBar("✅ Sign-up successful", color: Colors.green);
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (_) => ChangeNotifierProvider.value(
-              value: viewModel,
-              child: const DashboardScreen(),
-            ),
-          ),
-        );
-      } else {
-        _showSnackBar(viewModel.errorMessage ?? "❌ Sign-up failed");
+        _showSnackBar(viewModel.errorMessage ?? "Login failed");
       }
     }
   }
@@ -83,6 +57,15 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
+
+    // Define layout modes based on screen width
+    String layoutMode = 'full';
+    if (screenWidth <= 800) {
+      layoutMode = 'minimize';
+    }
+    if (screenWidth <= 600) {
+      layoutMode = 'half';
+    }
 
     return Scaffold(
       body: LayoutBuilder(
@@ -93,7 +76,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Padding(
                   padding: const EdgeInsets.all(40.0),
                   child: SingleChildScrollView(
-                    child: Consumer<SignupViewModel>( // Using SignupViewModel
+                    child: Consumer<SignupViewModel>(
                       builder: (_, viewModel, __) {
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -112,9 +95,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   TextFormField(
                                     controller: _emailController,
                                     validator: (val) =>
-                                    val == null || !val.contains('@')
-                                        ? 'Enter valid email'
-                                        : null,
+                                    val == null || !val.contains('@') ? 'Enter valid email' : null,
                                     decoration: InputDecoration(
                                       labelText: 'Email',
                                       border: OutlineInputBorder(
@@ -129,9 +110,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     controller: _passwordController,
                                     obscureText: !_isPasswordVisible,
                                     validator: (val) =>
-                                    val == null || val.length < 6
-                                        ? 'Password too short'
-                                        : null,
+                                    val == null || val.length < 6 ? 'Password too short' : null,
                                     decoration: InputDecoration(
                                       labelText: 'Password',
                                       border: OutlineInputBorder(
@@ -141,9 +120,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                       fillColor: Colors.grey[200],
                                       suffixIcon: IconButton(
                                         icon: Icon(
-                                          _isPasswordVisible
-                                              ? Icons.visibility_off
-                                              : Icons.visibility,
+                                          _isPasswordVisible ? Icons.visibility_off : Icons.visibility,
                                         ),
                                         onPressed: () => setState(() {
                                           _isPasswordVisible = !_isPasswordVisible;
@@ -185,35 +162,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                     ),
                                   ),
                                   const SizedBox(height: 20),
-                                  // Only show the "Sign Up" button if the screen width is smaller than 800px (i.e., for mobile devices)
-                                  if (screenWidth < 800) ...[
-                                    SizedBox(
-                                      width: double.infinity,
-                                      height: 50,
-                                      child: ElevatedButton(
-                                        onPressed: viewModel.isLoading
-                                            ? null
-                                            : () {
-                                          // Navigate to SignUpView
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (_) => const SignupView(), // Navigate to the SignUpView screen
-                                            ),
-                                          );
-                                        },
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: Colors.green, // Sign-up button color
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(12),
-                                          ),
-                                        ),
-                                        child: viewModel.isLoading
-                                            ? const CircularProgressIndicator(color: Colors.white)
-                                            : const Text('Sign Up', style: TextStyle(color: Colors.white)), // Sign-up text
-                                      ),
-                                    ),
-                                  ],
                                 ],
                               ),
                             ),
@@ -224,9 +172,10 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
               ),
-              if (screenWidth > 800) // Show images only on larger screens
+              if (screenWidth > 600)
                 Expanded(
-                  child: Stack(
+                  child: layoutMode == 'full'
+                      ? Stack(
                     children: [
                       Positioned(
                         top: screenHeight * 0.05,
@@ -235,14 +184,14 @@ class _LoginScreenState extends State<LoginScreen> {
                           borderRadius: BorderRadius.circular(25),
                           child: Image.asset(
                             'assets/img_1.png',
-                            width: screenWidth * 0.35,
-                            height: screenHeight * 0.5,
-                            fit: BoxFit.cover,
+                            width: screenWidth * 0.25,
+                            height: screenHeight * 0.7,
+                            fit: BoxFit.contain,
                           ),
                         ),
                       ),
                       Positioned(
-                        top: screenHeight * 0.45,
+                        top: screenHeight * 0.65,
                         right: screenWidth * 0.02,
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(20),
@@ -255,7 +204,40 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                     ],
-                  ),
+                  )
+                      : layoutMode == 'minimize'
+                      ? Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Positioned(
+                        top: screenHeight * 0.10,
+                        right: screenWidth * 0.15,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(25),
+                          child: Image.asset(
+                            'assets/img_1.png',
+                            width: screenWidth * 0.35,
+                            height: screenHeight * 0.4,
+                            fit: BoxFit.contain,
+                          ),
+                        ),
+                      ),
+                      //const SizedBox(height: 20),
+                      Positioned(
+                        top: screenHeight * 0.50,
+                        right: screenWidth * 0.10,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(20),
+                          child: Image.asset(
+                            'assets/img_2.png',
+                            width: screenWidth * 0.25,
+                            height: screenHeight * 0.50,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ) : const SizedBox.shrink(),
                 ),
             ],
           );

@@ -117,14 +117,14 @@ class _ResetPasswordEmailState extends State<ResetPasswordEmail> {
                             borderRadius: BorderRadius.circular(25),
                             child: Image.asset(
                               'assets/img_1.png',
-                              width: screenWidth * 0.35,
-                              height: screenHeight * 0.5,
+                              width: screenWidth * 0.25,
+                              height: screenHeight * 0.7,
                               fit: BoxFit.cover,
                             ),
                           ),
                         ),
                         Positioned(
-                          top: screenHeight * 0.45,
+                          top: screenHeight * 0.65,
                           right: screenWidth * 0.02,
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(20),
