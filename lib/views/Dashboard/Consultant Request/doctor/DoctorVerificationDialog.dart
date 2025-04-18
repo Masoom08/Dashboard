@@ -120,12 +120,7 @@ class _DoctorVerificationDialogState extends State<DoctorVerificationDialog> {
                 Expanded(
                   child: buildInfoCard(
                     title: "Education Qualification",
-                    info: [/*
-                      "Degree: Bachelor in Design",
-                      "College: IIT Bombay",
-                      "Year: 2022",*/
-                      //'Qualification Doc: ${widget.doctor.educationDoc.isNotEmpty ? widget.doctor.educationDoc : 'Not available'}',
-                    ],
+                    info: [],
                     customContent: buildQualificationDoc(
                       '${widget.doctor.educationDoc.isNotEmpty ? widget.doctor.educationDoc : 'Not available'}',
                       widget.doctor.educationDocUrl,
@@ -140,11 +135,7 @@ class _DoctorVerificationDialogState extends State<DoctorVerificationDialog> {
                 Expanded(
                   child: buildInfoCard(
                     title: "Medical Registration",
-                    info: [/*
-                      "Reg. Number: 234343232321312",
-                      "Council: UP Medical Council",
-                      "Year: 2022"*/
-                    ],
+                    info: [],
                     customContent: buildMedicalRegistration(
                       '${widget.doctor.medicalProof.isNotEmpty ? widget.doctor.medicalProof : 'Not available'}',
                       widget.doctor.medicalProofUrl,
@@ -155,10 +146,15 @@ class _DoctorVerificationDialogState extends State<DoctorVerificationDialog> {
                 ),
                 SizedBox(width: 15),
                 Expanded(
-                  child: buildImageCard(
+                  child: buildInfoCard(
                     title: "Identity Proof",
+                    info: [],
+                    customContent: buildIdProof(
+                      '${widget.doctor.idUrl.isNotEmpty ? widget.doctor.idUrl : 'Not available'}',
+                      widget.doctor.idUrl,
+                    ),
                     key: "identity",
-                    imagePath:  widget.doctor.idUrl,//'assets/img.png',
+                    color: AppColors.blueTint,
                   ),
                 ),
               ],
@@ -230,10 +226,27 @@ class _DoctorVerificationDialogState extends State<DoctorVerificationDialog> {
               debugPrint('Could not launch $docUrl');
               }
             },
-            child: Text(
-              'Qualification Document: $docUrl',
-              style: TextStyle(
-                  color: Colors.blue, fontWeight: FontWeight.w500),
+            child: RichText(
+              text: TextSpan(
+                style: DefaultTextStyle.of(context).style,
+                children: [
+                  TextSpan(
+                    text: 'Qualification Document: ',
+                    style: TextStyle(
+                      color: AppColors.black,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  TextSpan(
+                    text: docUrl,
+                    style: TextStyle(
+                      color: Colors.blue,
+                      fontWeight: FontWeight.w500,
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         )
@@ -245,6 +258,48 @@ class _DoctorVerificationDialogState extends State<DoctorVerificationDialog> {
       ],
     );
   }
+
+  Widget buildIdProof(String docName, String? docUrl) {
+    final isAvailable = docUrl != null && docUrl.isNotEmpty;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "Document:",
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 14,
+            color: AppColors.black,
+          ),
+        ),
+        SizedBox(height: 6),
+        isAvailable
+            ? GestureDetector(
+          onTap: () async {
+            if (await canLaunchUrl(Uri.parse(docUrl!))) {
+              await launchUrl(Uri.parse(docUrl));
+            }
+          },
+          child: Text(
+            docName,
+            style: TextStyle(
+              color: AppColors.primaryBlue,
+              decoration: TextDecoration.underline,
+            ),
+          ),
+        )
+            : Text(
+          "Not available",
+          style: TextStyle(
+            color: AppColors.grey,
+            fontStyle: FontStyle.italic,
+          ),
+        ),
+      ],
+    );
+  }
+
 
   Widget buildMedicalRegistration(String docText, String docUrl) {
     // Split the input text into parts using commas
@@ -285,10 +340,27 @@ class _DoctorVerificationDialogState extends State<DoctorVerificationDialog> {
                 debugPrint('Could not launch $docUrl');
               }
             },
-            child: Text(
-              'Qualification Document: $docUrl',
-              style: TextStyle(
-                  color: Colors.blue, fontWeight: FontWeight.w500),
+            child: RichText(
+              text: TextSpan(
+                style: DefaultTextStyle.of(context).style,
+                children: [
+                  TextSpan(
+                    text: 'Qualification Document: ',
+                    style: TextStyle(
+                      color: AppColors.black,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  TextSpan(
+                    text: docUrl,
+                    style: TextStyle(
+                      color: Colors.blue,
+                      fontWeight: FontWeight.w500,
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         )
@@ -300,6 +372,7 @@ class _DoctorVerificationDialogState extends State<DoctorVerificationDialog> {
       ],
     );
   }
+
 
   Widget buildInfoCard({
     required String title,

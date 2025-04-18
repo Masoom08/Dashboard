@@ -19,13 +19,18 @@ class DoctorViewModel extends ChangeNotifier {
   List<Doctor> get doctors => _doctors;
   List<Doctor> get serviceAgreedDoctors => _serviceAgreedDoctors;
   List<Doctor> get approvedDoctors => _approvedDoctors;
+
   List<Doctor> getDoctorsWithEducationDoc() {
     return _doctors.where((doctor) => doctor.educationDoc.isNotEmpty).toList();
   }
+
   List<Doctor> getDoctorsWithMedicalProof() {
     return _doctors.where((doctor) => doctor.medicalProof.isNotEmpty).toList();
   }
 
+  List<Doctor> getDoctorsWithIdUrl() {
+    return _doctors.where((doctor) => doctor.idUrl.isNotEmpty).toList();
+  }
 
   int get currentPage => _currentPage;
   int get totalPages => _totalPages;
@@ -150,4 +155,6 @@ class DoctorViewModel extends ChangeNotifier {
       return null;
     }
   }
+  
+
 }
