@@ -7,6 +7,7 @@ import '../../../../../theme/colors.dart';
 import '../../../../../viewmodels/doctor_viewmodel.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
+import '../../../viewmodels/total_users_viewmodel.dart';
 import '../../../viewmodels/user_viewmodel.dart'; // Import for cached images
 
 class TotalUsersCard extends StatefulWidget {
@@ -19,14 +20,20 @@ class _TotalUsersCardState extends State<TotalUsersCard> {
   bool _isShowingDoctors  = true;
 
   @override
+  void initState() {
+    super.initState();
+    Future.microtask(() =>
+        Provider.of<TotalUsersViewModel>(context, listen: false).loadUsers());
+  }
+
+  @override
   Widget build(BuildContext context) {
     final doctorViewModel = Provider.of<DoctorViewModel>(context);
-    final userViewModel = Provider.of<UserViewModel>(context);
-    final users = userViewModel.allUsers; // Assuming this fetches all users
+    final userViewModel = Provider.of<TotalUsersViewModel>(context);
+    final users = userViewModel.users;
+    final userCount = userViewModel.userCount;
+    final isLoading = userViewModel.isLoading;
 
-    final doctors = doctorViewModel.serviceAgreedDoctors; // Use serviceAgreedDoctors
-    final filteredOrthos = doctorViewModel.getFilteredDoctors("Orthopedics");
-    final filteredCardios = doctorViewModel.getFilteredDoctors("Cardiology");
 
     final List<String> baseCategories = [
       "Doctors", "Orthopedics", "Cardiology", "Dentists"
@@ -58,8 +65,8 @@ class _TotalUsersCardState extends State<TotalUsersCard> {
                   children: [
                     // Responsive Top Row
                     isSmall
-                        ? _buildSmallScreenHeader(context,userViewModel)
-                        : _buildLargeScreenHeader(context,userViewModel),
+                        ? _buildSmallScreenHeader(context,)
+                        : _buildLargeScreenHeader(context,),
                     const SizedBox(height: 8),
                     Text("Pending Doctors : ${doctorViewModel.serviceAgreedDoctors.length}", style: _whiteTextStyle), // Updated text
                     const SizedBox(height: 10),
@@ -89,7 +96,9 @@ class _TotalUsersCardState extends State<TotalUsersCard> {
 
               Padding(
                 padding: const EdgeInsets.all(12.0),
-                child: Column(
+                child:  isLoading
+                    ? Center(child: CircularProgressIndicator())
+                    :Column(
                   children: _isShowingDoctors
                       ? _getFilteredDoctors(doctorViewModel)
                       .take(2)
@@ -131,11 +140,12 @@ class _TotalUsersCardState extends State<TotalUsersCard> {
   }
 
   // Header for small screen
-  Widget _buildSmallScreenHeader(BuildContext context, UserViewModel userViewModel) {
+  Widget _buildSmallScreenHeader(BuildContext context) {
+    final userViewModel = Provider.of<TotalUsersViewModel>(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text("Total Users : ${userViewModel.totalUsers}", style: _whiteTextStyle),
+        Text("Total Users : ${userViewModel.userCount}", style: _whiteTextStyle),
         const SizedBox(height: 8),
         Wrap(
           spacing: 8,
@@ -149,7 +159,8 @@ class _TotalUsersCardState extends State<TotalUsersCard> {
               },
               child: Text("Clients"),
               style: _filterBtnStyle.copyWith(
-                backgroundColor: MaterialStateProperty.all(!_isShowingDoctors ? Colors.white : Colors.grey[300]),
+                backgroundColor: MaterialStateProperty.all(
+                    !_isShowingDoctors ? Colors.white : Colors.grey[300]),
               ),
             ),
             ElevatedButton(
@@ -160,7 +171,8 @@ class _TotalUsersCardState extends State<TotalUsersCard> {
               },
               child: Text("Consultants"),
               style: _filterBtnStyle.copyWith(
-                backgroundColor: MaterialStateProperty.all(_isShowingDoctors ? Colors.white : Colors.grey[300]),
+                backgroundColor: MaterialStateProperty.all(
+                    _isShowingDoctors ? Colors.white : Colors.grey[300]),
               ),
             ),
             GestureDetector(
@@ -186,24 +198,33 @@ class _TotalUsersCardState extends State<TotalUsersCard> {
   }
 
   // Header for large screen
-  Widget _buildLargeScreenHeader(BuildContext context, UserViewModel userViewModel) {
+  Widget _buildLargeScreenHeader(BuildContext context) {
+    final userViewModel = Provider.of<TotalUsersViewModel>(context);
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text("Total Users : ${userViewModel.totalUsers}", style: _whiteTextStyle),
+        Text("Total Users : ${userViewModel.userCount}", style: _whiteTextStyle),
         Row(
           children: [
-            ElevatedButton(onPressed: () {
-              setState(() {
-              _isShowingDoctors = false;
-            });
-              }, child: Text("Clients"), style: _filterBtnStyle),
+            ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  _isShowingDoctors = false;
+                });
+              },
+              child: Text("Clients"),
+              style: _filterBtnStyle,
+            ),
             const SizedBox(width: 8),
-            ElevatedButton(onPressed: () {
-              setState(() {
-                _isShowingDoctors = true;
-              });
-            }, child: Text("Consultants"), style: _filterBtnStyle),
+            ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  _isShowingDoctors = true;
+                });
+              },
+              child: Text("Consultants"),
+              style: _filterBtnStyle,
+            ),
             const SizedBox(width: 12),
             GestureDetector(
               onTap: () {

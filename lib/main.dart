@@ -3,8 +3,10 @@ import 'package:dashboardN/viewmodels/demographic_viewmodel.dart';
 import 'package:dashboardN/viewmodels/doctor_viewmodel.dart';
 import 'package:dashboardN/viewmodels/feedback_viewmodel.dart';
 import 'package:dashboardN/viewmodels/signup_viewmodel.dart';
+import 'package:dashboardN/viewmodels/total_users_viewmodel.dart';
 import 'package:dashboardN/viewmodels/user_viewmodel.dart';
 import 'package:dashboardN/viewmodels/wallet_view_model.dart';
+import 'package:dashboardN/views/Dashboard/Total%20User/total_user.dart';
 import 'package:dashboardN/views/auth/login.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -34,6 +36,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => EarningsViewModel()),
         ChangeNotifierProvider(create: (_) => SignupViewModel(AuthService())), // Fixed the missing provider here
         ChangeNotifierProvider(create: (_) => DemographicsViewModel()),
+        ChangeNotifierProvider(create: (_) => TotalUsersViewModel(), child: TotalUsersCard(),)
       ],
       child: const MyApp(),
     ),
