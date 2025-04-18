@@ -50,7 +50,19 @@ class DoctorViewModel extends ChangeNotifier {
 
     try {
       final fetchedDoctors = await _repository.fetchDoctorsFromFirestore();
-      _doctors = fetchedDoctors;
+      _doctors = [];
+
+      // Fetch balance for each doctor and create Doctor objects with balance
+      await Future.forEach(fetchedDoctors, (Doctor doctor) async {
+        final doctorId = doctor.userId; // Assuming 'id' is the doctor document ID
+
+        // Get wallet balance directly for each doctor without calling fetchWalletByDoctorId
+        final balance = await _repository.fetchWalletBalanceByDoctorId(doctorId);
+
+        // Create Doctor object including balance
+        _doctors.add(Doctor.fromMap(doctor.toMap(), balance: balance));
+      });
+
       _totalPages = (_doctors.length / 10).ceil();
       _currentPage = 1;
 
@@ -80,7 +92,7 @@ class DoctorViewModel extends ChangeNotifier {
   Future<void> fetchDoctorsByServiceAgreementAgreed() async {
     _errorMessage = '';
     try {
-      final filteredDoctors = await _repository.fetchDoctorsByServiceAgreed(isAgreed: true); // ✅ fixed
+      final filteredDoctors = await _repository.fetchDoctorsByServiceAgreed(isAgreed: true);
       _approvedDoctors = filteredDoctors;
     } catch (e) {
       _errorMessage = 'Failed to load approved doctors: ${e.toString()}';
@@ -155,6 +167,4 @@ class DoctorViewModel extends ChangeNotifier {
       return null;
     }
   }
-  
-
 }

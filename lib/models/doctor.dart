@@ -26,6 +26,7 @@ class Doctor {
   final DateTime createdAt;
   final DateTime updatedAt;
   final String phone;
+  final double balance;  // New balance field
 
   Doctor({
     required this.name,
@@ -53,9 +54,10 @@ class Doctor {
     required this.createdAt,
     required this.updatedAt,
     required this.phone,
+    required this.balance,  // Balance passed here
   });
 
-  factory Doctor.fromMap(Map<String, dynamic> json) {
+  factory Doctor.fromMap(Map<String, dynamic> json, {double balance = 0.0}) {
     return Doctor(
       name: json['name'] ?? '',
       email: json['email'] ?? '',
@@ -73,7 +75,7 @@ class Doctor {
       isTermsAgreed: _parseBool(json['is_terms_agreed']),
       isDeleted: _parseBool(json['is_deleted']),
       registrationStatus: json['registration_status'] ?? '',
-      educationDoc: json['education_doc'] ?? '', // 👈 New field
+      educationDoc: json['education_doc'] ?? '',
       educationDocUrl: json['education_doc_url'] ?? '',
       medicalProof: json['medical_proof'] ?? '',
       medicalProofUrl: json['medical_proof_url'] ?? '',
@@ -82,6 +84,7 @@ class Doctor {
       createdAt: _parseDate(json['created_at']),
       updatedAt: _parseDate(json['updated_at']),
       phone: json['phone'] ?? '',
+      balance: balance, // Set balance here
     );
   }
 
@@ -124,6 +127,7 @@ class Doctor {
       'created_at': createdAt,
       'updated_at': updatedAt,
       'phone': phone,
+      'balance': balance,  // Include balance when saving to Firestore
     };
   }
 }
