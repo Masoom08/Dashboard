@@ -10,14 +10,16 @@ class Doctor {
   final List<String> departments;
   final List<String> languages;
   final String experience;
-  final String isSurgeonString; // e.g., "Yes" / "No"
+  final String isSurgeonString;
   final bool isSurgeon;
   final bool isOnline;
   final bool isLoggedIn;
   final bool isTermsAgreed;
   final bool isDeleted;
   final String registrationStatus;
+  final String educationDoc;
   final String educationDocUrl;
+  final String medicalProof;
   final String medicalProofUrl;
   final String idUrl;
   final String userId;
@@ -42,7 +44,9 @@ class Doctor {
     required this.isTermsAgreed,
     required this.isDeleted,
     required this.registrationStatus,
+    required this.educationDoc,
     required this.educationDocUrl,
+    required this.medicalProof,
     required this.medicalProofUrl,
     required this.idUrl,
     required this.userId,
@@ -61,15 +65,17 @@ class Doctor {
       state: json['state'] ?? '',
       departments: List<String>.from(json['departments'] ?? []),
       languages: List<String>.from(json['languages'] ?? []),
-      experience: json['experience']?.toString() ?? '0', // safe string cast
+      experience: json['experience']?.toString() ?? '0',
       isSurgeonString: json['isSurgeon']?.toString() ?? '',
-      isSurgeon: _parseBool(json['is_surgeon']), // actual bool
+      isSurgeon: _parseBool(json['is_surgeon']),
       isOnline: _parseBool(json['is_online']),
       isLoggedIn: _parseBool(json['is_logged_in']),
       isTermsAgreed: _parseBool(json['is_terms_agreed']),
       isDeleted: _parseBool(json['is_deleted']),
       registrationStatus: json['registration_status'] ?? '',
+      educationDoc: json['education_doc'] ?? '', // 👈 New field
       educationDocUrl: json['education_doc_url'] ?? '',
+      medicalProof: json['medical_proof'] ?? '',
       medicalProofUrl: json['medical_proof_url'] ?? '',
       idUrl: json['id_url'] ?? '',
       userId: json['user_id'] ?? '',
@@ -109,7 +115,9 @@ class Doctor {
       'is_terms_agreed': isTermsAgreed,
       'is_deleted': isDeleted,
       'registration_status': registrationStatus,
+      'educationDoc': educationDoc,
       'education_doc_url': educationDocUrl,
+      'medical_proof': medicalProof,
       'medical_proof_url': medicalProofUrl,
       'id_url': idUrl,
       'user_id': userId,

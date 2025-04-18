@@ -6,6 +6,7 @@ class UserModel {
   final String password;
   final String name;
   final String profilePicUrl;
+  final String state; // Added state field
 
   UserModel({
     required this.userId,
@@ -13,6 +14,7 @@ class UserModel {
     required this.password,
     required this.name,
     required this.profilePicUrl,
+    required this.state, // Constructor to initialize state
   });
 
   factory UserModel.fromMap(Map<String, dynamic> map) {
@@ -22,6 +24,7 @@ class UserModel {
       password: (map['password'] ?? '').toString().trim(),
       name: (map['name'] ?? '').toString().trim(),
       profilePicUrl: (map['profile_pic_url'] ?? '').toString().trim(),
+      state: (map['state'] ?? '').toString().trim(), // Map state from Firestore
     );
   }
 
@@ -32,6 +35,7 @@ class UserModel {
       'password': password,
       'name': name,
       'profile_pic_url': profilePicUrl,
+      'state': state, // Add state to Firestore map
     };
   }
 
@@ -40,4 +44,3 @@ class UserModel {
     return UserModel.fromMap(data);
   }
 }
-

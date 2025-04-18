@@ -103,8 +103,8 @@ class _EarningsCardState extends State<EarningsCard> {
   Widget _buildHeader() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: const [
-        Text(
+      children: [
+        const Text(
           "Earnings",
           style: TextStyle(
             fontSize: 18,
@@ -115,7 +115,8 @@ class _EarningsCardState extends State<EarningsCard> {
           children: [
             Text("Custom", style: TextStyle(fontSize: 14, color: Colors.black54)),
             SizedBox(width: 4),
-            Icon(Icons.toggle_on, size: 20, color: Colors.black54),
+            Image.asset('assets/custom.png', height: 20, width: 20, color: Colors.black54, // Optional: applies tint
+            ),
           ],
         ),
       ],

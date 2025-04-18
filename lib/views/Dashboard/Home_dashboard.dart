@@ -3,6 +3,7 @@ import '../../../../theme/colors.dart';
 import '../../models/user.dart';
 import 'Annoucement.dart';
 import 'Consultant Request/consultant.dart';
+import 'Demographic/DemographicView.dart';
 import 'Earning/earnings.dart';
 import 'Header.dart';
 import 'Overview Graph/overview.dart';
@@ -102,6 +103,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         const SizedBox(height: 32),
 
                         // User Demographics Section
+                        UserDemographicsSection(),
+                        /*
                         Container(
                           decoration: BoxDecoration(
                             color: Colors.white,
@@ -148,6 +151,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             ],
                           ),
                         ),
+
+                         */
 
                         const SizedBox(height: 40),
                       ],

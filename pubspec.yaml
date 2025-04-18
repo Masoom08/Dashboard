@@ -53,6 +53,7 @@ dev_dependencies:
   firebase_auth: ^4.18.4
   # If you're using Firebase Storage for documents/images
   firebase_storage: ^11.6.4
+  url_launcher: ^6.2.5
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
@@ -79,6 +80,7 @@ flutter:
      - assets/health.png
      - assets/img.png
      - assets/icon.png
+     - assets/custom.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

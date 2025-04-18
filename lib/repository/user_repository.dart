@@ -9,7 +9,7 @@ class UserRepository {
 
     try {
       final snapshot = await _firestore
-          .collection('users') // ✅ Ensure correct collection
+          .collection('users') // Ensure correct collection
           .where('email', isEqualTo: email.trim())
           .get();
 
@@ -17,22 +17,22 @@ class UserRepository {
         final data = snapshot.docs.first.data();
         final user = UserModel.fromMap(data);
 
-        print('✅ User found in Firestore: ${user.email}');
-        print('🔐 Firestore password: "${user.password}", Input password: "$password"');
+        print('User found in Firestore: ${user.email}');
+        print('Firestore password: "${user.password}", Input password: "$password"');
 
         if (user.password == password.trim()) {
-          print('✅ Password matched. Login successful for $email');
+          print('Password matched. Login successful for $email');
           return user;
         } else {
-          print('❌ Password mismatch for $email');
+          print('Password mismatch for $email');
         }
       } else {
-        print('🚫 No user found with email: $email');
+        print('No user found with email: $email');
       }
 
       return null;
     } catch (e) {
-      print('🔥 Exception during login: $e');
+      print('Exception during login: $e');
       throw Exception('Login failed: $e');
     }
   }
@@ -44,9 +44,8 @@ class UserRepository {
         return UserModel.fromMap(data);
       }).toList();
     } catch (e) {
-      print('🔥 Error fetching all users: $e');
+      print('Error fetching all users: $e');
       throw Exception('Failed to fetch users: $e');
     }
   }
-
 }
