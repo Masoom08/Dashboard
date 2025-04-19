@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+ // <-- Update to your correct path
 import '../../../../theme/colors.dart';
 import '../../models/user.dart';
+import 'CompleteAdminProfileScreen.dart';
 
 class CustomHeader extends StatelessWidget {
   final String title;
@@ -49,8 +51,15 @@ class CustomHeader extends StatelessWidget {
                 ),
               ),
             ),
-          const Spacer(),
           GestureDetector(
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => CompleteAdminProfileScreen(), // <- Use your actual screen
+                ),
+              );
+            },
             child: CircleAvatar(
               radius: 20,
               backgroundColor: AppColors.primaryBlue,

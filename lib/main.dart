@@ -1,4 +1,5 @@
 import 'package:dashboardN/services/auth_service.dart';
+import 'package:dashboardN/viewmodels/AdminProfileViewModel.dart';
 import 'package:dashboardN/viewmodels/demographic_viewmodel.dart';
 import 'package:dashboardN/viewmodels/doctor_viewmodel.dart';
 import 'package:dashboardN/viewmodels/feedback_viewmodel.dart';
@@ -18,13 +19,13 @@ void main() async {
 
   await Firebase.initializeApp(
     options: const FirebaseOptions(
-      apiKey: "AIzaSyBNijYd0UDjhJ5h6hOBTffHlc8BSkiKus8",
-      authDomain: "advilo-769f1.firebaseapp.com",
-      projectId: "advilo-769f1",
-      storageBucket: "advilo-769f1.appspot.com",
-      messagingSenderId: "752989842418",
-      appId: "1:752989842418:web:672537de4581268375d96b",
-      measurementId: "G-MBFDZRCCLK",
+        apiKey: "AIzaSyBNijYd0UDjhJ5h6hOBTffHlc8BSkiKus8",
+        authDomain: "advilo-769f1.firebaseapp.com",
+        projectId: "advilo-769f1",
+        storageBucket: "advilo-769f1.firebasestorage.app",
+        messagingSenderId: "752989842418",
+        appId: "1:752989842418:web:672537de4581268375d96b",
+        measurementId: "G-MBFDZRCCLK"
     ),
   );
 
@@ -37,6 +38,7 @@ void main() async {
         ChangeNotifierProvider(create: (_) => EarningsViewModel()),
         ChangeNotifierProvider(create: (_) => SignupViewModel(AuthService())), // Fixed the missing provider here
         ChangeNotifierProvider(create: (_) => DemographicsViewModel()),
+        ChangeNotifierProvider(create: (_) => AdminProfileViewModel()),
         ChangeNotifierProvider(create: (_) => TotalUsersViewModel(), child: TotalUsersCard(),),
         ChangeNotifierProvider(create: (_) => StatsViewModel()),
       ],

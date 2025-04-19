@@ -7,7 +7,7 @@ import 'Demographic/DemographicView.dart';
 import 'Earning/earnings.dart';
 import 'Header.dart';
 import 'Overview Graph/overview.dart';
-import 'Profile.dart';
+import 'CompleteAdminProfileScreen.dart';
 import 'Total User/total_user.dart';
 import 'Sidebar.dart';
 
