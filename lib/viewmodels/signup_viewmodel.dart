@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../services/auth_service.dart';
+import 'AdminProfileViewModel.dart';
+ // Import the AdminProfileViewModel
 
 class SignupViewModel with ChangeNotifier {
   final AuthService _authService;
@@ -10,7 +13,7 @@ class SignupViewModel with ChangeNotifier {
   bool get isLoading => _isLoading;
 
   String? _error;
-  String? get errorMessage => _error; // renamed getter to match usage in UI
+  String? get errorMessage => _error;
 
   Future<bool> signUp(String email, String password) async {
     _setLoading(true);
@@ -27,12 +30,18 @@ class SignupViewModel with ChangeNotifier {
     }
   }
 
-  Future<bool> loginUser(String email, String password) async {
+  Future<bool> loginUser(String email, String password, BuildContext context) async {
     _setLoading(true);
     _error = null;
 
     try {
-      await _authService.login(email, password);
+      // Login via AuthService
+      await _authService.login(email, password, context);
+
+      // Load the admin profile after login
+      final adminProfileVM = Provider.of<AdminProfileViewModel>(context, listen: false);
+      await adminProfileVM.loadAdminProfile();
+
       return true;
     } catch (e) {
       _error = _handleFirebaseError(e);

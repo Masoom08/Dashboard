@@ -3,12 +3,14 @@ import 'dart:typed_data';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart'; // kIsWeb
+import 'package:firebase_auth/firebase_auth.dart';
 
 import '../models/AdminProfile.dart';
 
 class AdminProfileRepository {
   final _firestore = FirebaseFirestore.instance;
   final _storage = FirebaseStorage.instance;
+  final _auth = FirebaseAuth.instance;
 
   /// Upload image from File (mobile)
   Future<String> uploadProfileImage(String uid, File imageFile) async {
@@ -81,6 +83,22 @@ class AdminProfileRepository {
     } catch (e) {
       debugPrint("Firestore error: $e");
       throw Exception("Failed to save admin profile: $e");
+    }
+  }
+
+  /// 🔥 NEW: Fetch current logged-in admin profile
+  Future<AdminProfile?> fetchCurrentAdminProfile() async {
+    try {
+      final uid = _auth.currentUser?.uid;
+      if (uid == null) return null;
+
+      final doc = await _firestore.collection('admins').doc(uid).get();
+      if (!doc.exists) return null;
+
+      return AdminProfile.fromMap(uid, doc.data()!);
+    } catch (e) {
+      debugPrint("Error fetching admin profile: $e");
+      return null;
     }
   }
 }

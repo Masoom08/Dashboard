@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
- // <-- Update to your correct path
 import '../../../../theme/colors.dart';
 import '../../models/user.dart';
 import 'CompleteAdminProfileScreen.dart';
@@ -16,6 +15,9 @@ class CustomHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final String name = currentUser?.name ?? '';
+    final String? profilePicUrl = currentUser?.profilePicUrl;
+    debugPrint("Profile URL : $profilePicUrl");
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
       decoration: BoxDecoration(
@@ -39,11 +41,11 @@ class CustomHeader extends StatelessWidget {
             ),
           ),
           const Spacer(),
-          if (currentUser?.name != null)
+          if (name.isNotEmpty)
             Padding(
               padding: const EdgeInsets.only(right: 12.0),
               child: Text(
-                currentUser!.name,
+                name,
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
@@ -56,17 +58,17 @@ class CustomHeader extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (_) => CompleteAdminProfileScreen(), // <- Use your actual screen
+                  builder: (_) => CompleteAdminProfileScreen(),
                 ),
               );
             },
             child: CircleAvatar(
               radius: 20,
               backgroundColor: AppColors.primaryBlue,
-              backgroundImage: (currentUser?.profilePicUrl != null && currentUser!.profilePicUrl!.isNotEmpty)
-                  ? NetworkImage(currentUser!.profilePicUrl!)
+              backgroundImage: (profilePicUrl != null && profilePicUrl.isNotEmpty)
+                  ? NetworkImage(profilePicUrl)
                   : null,
-              child: (currentUser?.profilePicUrl == null || currentUser!.profilePicUrl!.isEmpty)
+              child: (profilePicUrl == null || profilePicUrl.isEmpty)
                   ? const Icon(
                 Icons.person,
                 color: Colors.white,

@@ -1,4 +1,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../viewmodels/AdminProfileViewModel.dart';
+
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -15,13 +20,17 @@ class AuthService {
     }
   }
 
-  // Login an existing user
-  Future<void> login(String email, String password) async {
+  // Login an existing user and load admin profile
+  Future<void> login(String email, String password, BuildContext context) async {
     try {
       await _auth.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
+
+      // After successful login, load admin profile
+      final adminProfileVM = Provider.of<AdminProfileViewModel>(context, listen: false);
+      await adminProfileVM.loadAdminProfile();
     } on FirebaseAuthException catch (e) {
       throw _handleAuthError(e);
     }
