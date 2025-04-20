@@ -32,7 +32,7 @@ class _LoginScreenState extends State<LoginScreen> {
       final email = _emailController.text.trim();
       final password = _passwordController.text.trim();
 
-      bool success = await viewModel.loginUser(email, password);
+      bool success = await viewModel.loginUser(email, password , context);
 
       if (!mounted) return;
 

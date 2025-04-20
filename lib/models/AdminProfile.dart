@@ -12,28 +12,28 @@ class AdminProfile {
     required this.name,
     this.phone,
     this.role,
-    this.profilePicUrl, // Allowing profilePicUrl to be nullable
+    this.profilePicUrl,
   });
 
   Map<String, dynamic> toMap() {
     return {
-      'uid': uid,
       'email': email,
       'name': name,
-      'phone': phone ?? '', // Providing default empty string for null phone
-      'role': role ?? '', // Providing default empty string for null role
-      'profilePicUrl': profilePicUrl ?? '', // Providing default empty string for null profilePicUrl
+      'phone': phone ?? '',
+      'role': role ?? '',
+      'profilePicUrl': profilePicUrl ?? '',
     };
   }
 
-  factory AdminProfile.fromMap(Map<String, dynamic> map) {
+  /// Factory method to create AdminProfile from Firestore map with uid from doc ID
+  factory AdminProfile.fromMap(String uid, Map<String, dynamic> map) {
     return AdminProfile(
-      uid: map['uid'] ?? '', // Default to empty string if missing
-      email: map['email'] ?? '', // Default to empty string if missing
-      name: map['name'] ?? '', // Default to empty string if missing
-      phone: map['phone'], // Null if missing
-      role: map['role'], // Null if missing
-      profilePicUrl: map['profilePicUrl'], // Null if missing
+      uid: uid,
+      email: map['email'] ?? '',
+      name: map['name'] ?? '',
+      phone: (map['phone'] as String?)?.isEmpty ?? true ? null : map['phone'],
+      role: (map['role'] as String?)?.isEmpty ?? true ? null : map['role'],
+      profilePicUrl: (map['profilePicUrl'] as String?)?.isEmpty ?? true ? null : map['profilePicUrl'],
     );
   }
 }
