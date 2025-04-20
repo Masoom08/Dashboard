@@ -125,8 +125,8 @@ class _TotalUserScreenState extends State<TotalUserScreen> {
         Row(
           children: [
             _buildTabButton("Doctors", true),
-            _buildTabButton("Clients", false),
-            _buildTabButton("Consultants", false),
+            //_buildTabButton("Clients", false),
+           // _buildTabButton("Consultants", false),
           ],
         ),
       ],
@@ -275,6 +275,7 @@ class _TotalUserScreenState extends State<TotalUserScreen> {
         SizedBox(
           width: 300,
           height: 40,
+          /*
           child: TextField(
             decoration: InputDecoration(
               contentPadding: const EdgeInsets.symmetric(horizontal: 12),
@@ -283,13 +284,10 @@ class _TotalUserScreenState extends State<TotalUserScreen> {
                 borderRadius: BorderRadius.circular(8),
               ),
             ),
-          ),
+          ),*/
         ),
         const SizedBox(width: 8),
-        ElevatedButton(
-          onPressed: () {},
-          child: const Text("Search"),
-        ),
+        //ElevatedButton(onPressed: () {}, child: const Text("Search"),),
       ],
     );
   }
