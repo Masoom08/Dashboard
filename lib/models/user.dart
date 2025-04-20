@@ -7,6 +7,7 @@ class UserModel {
   final String name;
   final String profilePicUrl;
   final String state; // Added state field
+  final String createdAt;
 
   UserModel({
     required this.userId,
@@ -15,6 +16,7 @@ class UserModel {
     required this.name,
     required this.profilePicUrl,
     required this.state, // Constructor to initialize state
+    required this.createdAt,
   });
 
   factory UserModel.fromMap(Map<String, dynamic> map) {
@@ -25,6 +27,7 @@ class UserModel {
       name: (map['name'] ?? '').toString().trim(),
       profilePicUrl: (map['profile_pic_url'] ?? '').toString().trim(),
       state: (map['state'] ?? '').toString().trim(), // Map state from Firestore
+      createdAt: (map['created_at'] ?? '').toString().trim(),
     );
   }
 
@@ -36,6 +39,7 @@ class UserModel {
       'name': name,
       'profile_pic_url': profilePicUrl,
       'state': state, // Add state to Firestore map
+      'created_at' : createdAt,
     };
   }
 

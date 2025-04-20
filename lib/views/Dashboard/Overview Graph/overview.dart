@@ -1,8 +1,8 @@
-import 'package:fl_chart/fl_chart.dart';
+import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:provider/provider.dart';
-
-import '../../../../../viewmodels/wallet_view_model.dart';
+import '../../../viewmodels/stats_viewmodel.dart';
 
 class OverviewGraph extends StatefulWidget {
   @override
@@ -10,76 +10,108 @@ class OverviewGraph extends StatefulWidget {
 }
 
 class _OverviewGraphState extends State<OverviewGraph> {
-  String filterType = 'Month'; // Default filter type
+  String filterType = 'Month';
+
+  @override
+  void initState() {
+    super.initState();
+    final viewModel = Provider.of<StatsViewModel>(context, listen: false);
+    viewModel.fetchUsersJoinedMonthlyStats();
+  }
+
+  double _getDynamicYInterval(List<FlSpot> spots) {
+    if (spots.isEmpty) return 1;
+
+    final maxY = spots.map((e) => e.y).reduce(max);
+
+    if (maxY <= 5) return 1;
+    if (maxY <= 20) return 2;
+    if (maxY <= 50) return 10;
+    if (maxY <= 100) return 20;
+    if (maxY <= 500) return 50;
+    if (maxY <= 1000) return 100;
+    if (maxY <= 2000) return 200;
+    return 500;
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<EarningsViewModel>(
+    return Consumer<StatsViewModel>(
       builder: (context, viewModel, child) {
-        final allEarnings = viewModel.monthlyEarnings;
+        final userStats = viewModel.usersJoinedCount;
 
-        // Prepare display data based on filter
-        List<String> filteredKeys = allEarnings.keys.toList();
-        Map<String, double> displayData = {};
-
-        if (filterType == 'Year') {
-          allEarnings.forEach((key, value) {
-            final parts = key.split('-');
-            final year = parts.last;
-            displayData[year] = (displayData[year] ?? 0.0) + value;
-          });
-        } else if (filterType == 'Date') {
-          displayData = Map.fromEntries(allEarnings.entries.toList()
-            ..sort((a, b) {
-              final aParts = a.key.split('-');
-              final bParts = b.key.split('-');
-              final dateA = DateTime(int.parse(aParts[2]), int.parse(aParts[1]), int.parse(aParts[0]));
-              final dateB = DateTime(int.parse(bParts[2]), int.parse(bParts[1]), int.parse(bParts[0]));
-              return dateA.compareTo(dateB);
-            }));
-        } else {
-          // Month
-          displayData = Map.fromEntries(allEarnings.entries.toList()
-            ..sort((a, b) {
-              final aParts = a.key.split('-');
-              final bParts = b.key.split('-');
-              final dateA = DateTime(int.parse(aParts[1]), int.parse(aParts[0]));
-              final dateB = DateTime(int.parse(bParts[1]), int.parse(bParts[0]));
-              return dateA.compareTo(dateB);
-            }));
+        if (viewModel.isLoading) {
+          return Center(child: CircularProgressIndicator());
         }
 
-        final labels = displayData.keys.toList();
+        // 👉 Create a list of months from first record to current month
+        DateTime getFirstDateFromMapKeys(Map<String, int> map) {
+          final keys = map.keys.map((e) {
+            final parts = e.split('-');
+            return DateTime(int.parse(parts[1]), int.parse(parts[0]));
+          }).toList();
+          keys.sort();
+          return keys.first;
+        }
+
+        List<String> generateMonthLabels(DateTime start, DateTime end) {
+          final List<String> result = [];
+          DateTime current = DateTime(start.year, start.month);
+          while (current.isBefore(end) || current.isAtSameMomentAs(end)) {
+            final label = '${current.month.toString().padLeft(2, '0')}-${current
+                .year}';
+            result.add(label);
+            current = DateTime(current.year, current.month + 1);
+          }
+          return result;
+        }
+
+        final DateTime now = DateTime.now();
+        final DateTime startDate = userStats.isNotEmpty
+            ? getFirstDateFromMapKeys(userStats)
+            : DateTime(now.year, now.month); // fallback to current
+
+        final labels = generateMonthLabels(
+            startDate, DateTime(now.year, now.month));
+
+        final displayData = {
+          for (var label in labels) label: userStats[label] ?? 0,
+        };
+
         final spots = [
           for (int i = 0; i < labels.length; i++)
-            FlSpot(i.toDouble(), displayData[labels[i]] ?? 0.0)
+            FlSpot(i.toDouble(), max(0, displayData[labels[i]]!.toDouble())),
         ];
+
+        final yInterval = _getDynamicYInterval(spots);
 
         return Container(
           constraints: BoxConstraints(maxWidth: 650),
           child: Card(
             color: Colors.white,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12)),
             child: Padding(
               padding: EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Title & Filter
+                  // Title and Dropdown
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text("Overview",
-                          style: TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold)),
+                      Text(
+                        "Users Registered Overview",
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
                       DropdownButton<String>(
                         value: filterType,
-                        items: [/*'Date',*/ 'Month', 'Year']
-                            .map((e) => DropdownMenuItem<String>(
-                          value: e,
-                          child: Text(e),
-                        ))
-                            .toList(),
+                        items: ['Month'].map((e) =>
+                            DropdownMenuItem<String>(
+                              value: e,
+                              child: Text(e),
+                            )).toList(),
                         onChanged: (newValue) {
                           setState(() {
                             filterType = newValue!;
@@ -90,7 +122,6 @@ class _OverviewGraphState extends State<OverviewGraph> {
                     ],
                   ),
                   SizedBox(height: 16),
-                  // Graph
                   SizedBox(
                     height: 200,
                     width: 600,
@@ -102,11 +133,11 @@ class _OverviewGraphState extends State<OverviewGraph> {
                             sideTitles: SideTitles(
                               showTitles: true,
                               reservedSize: 40,
+                              interval: yInterval, // ✅ dynamic interval
                               getTitlesWidget: (value, meta) {
                                 return Text(
-                                  '${(value / 1000).toStringAsFixed(0)}K',
-                                  style: TextStyle(
-                                      fontSize: 12, color: Colors.black),
+                                  value.toInt().toString(),
+                                  style: TextStyle(fontSize: 12),
                                 );
                               },
                             ),
@@ -118,59 +149,42 @@ class _OverviewGraphState extends State<OverviewGraph> {
                               getTitlesWidget: (value, _) {
                                 int index = value.toInt();
                                 if (index >= 0 && index < labels.length) {
-                                  final label = labels[index];
-
-                                  // If the filter type is 'Date', show dates like 7, 14, 21, etc.
-                                  if (filterType == 'Date') {
-                                    final dateParts = label.split('-');
-                                    final date = int.parse(dateParts[0]); // Assuming label format is 'DD-MM-YYYY'
-
-                                    // Show only specific dates (7, 14, 21, 28, 31)
-                                    if (date == 7 || date == 14 || date == 21 || date == 28 || date == 31) {
-                                      return Text(label, style: TextStyle(fontSize: 10));
-                                    } else {
-                                      return SizedBox.shrink();  // Hide labels that don't match the criteria
-                                    }
-                                  }
-
-                                  // If the filter type is 'Month' or 'Year', show the usual format
-                                  else if (filterType == 'Month') {
-                                    final parts = label.split('-');
-                                    return Text('${parts[0]}/${parts[1]}', style: TextStyle(fontSize: 10));
-                                  } else {
-                                    return Text(label, style: TextStyle(fontSize: 10));
-                                  }
+                                  final parts = labels[index].split('-');
+                                  return Text('${parts[0]}/${parts[1]}',
+                                      style: TextStyle(fontSize: 10));
                                 }
-
                                 return SizedBox.shrink();
                               },
                             ),
                           ),
                           topTitles: AxisTitles(
-                              sideTitles: SideTitles(showTitles: false)),
+                            sideTitles: SideTitles(showTitles: false),
+                          ),
                           rightTitles: AxisTitles(
-                              sideTitles: SideTitles(showTitles: false)),
+                            sideTitles: SideTitles(showTitles: false),
+                          ),
                         ),
                         borderData: FlBorderData(show: false),
                         lineBarsData: [
                           LineChartBarData(
                             spots: spots,
                             isCurved: false,
-                            color: Colors.transparent,
-                            barWidth: 0,
-                            isStrokeCapRound: false,
+                            color: Colors.green,
+                            barWidth: 2,
+                            isStrokeCapRound: true,
                             dotData: FlDotData(show: false),
                             belowBarData: BarAreaData(
                               show: true,
                               gradient: LinearGradient(
                                 colors: [
-                                  Color(0xFF45DE5D),
-                                  Color(0xFFA9EFB4),
-                                  Color(0xFFD3F6D9),
-                                  Color(0xFFFBFDFB),
+                                  Color(0xFF45DE5D).withOpacity(0.4), // Top
+                                  Color(0xFFA9EFB4).withOpacity(0.3),
+                                  Color(0xFFD3F6D9).withOpacity(0.2),
+                                  Color(0xFFFBFDFB).withOpacity(0.1), // Bottom
                                 ],
                                 begin: Alignment.topCenter,
                                 end: Alignment.bottomCenter,
+                                stops: [0.0, 0.33, 0.66, 1.0],
                               ),
                             ),
                           ),

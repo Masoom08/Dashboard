@@ -93,6 +93,9 @@ class _ResetPasswordEmailState extends State<ResetPasswordEmail> {
                           onPressed: _isLoading ? null : _sendPasswordResetEmail,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.primaryBlue,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                           ),
                           child: _isLoading
                               ? const CircularProgressIndicator(color: Colors.white)
