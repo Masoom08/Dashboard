@@ -63,97 +63,65 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         LayoutBuilder(
                           builder: (context, constraints) {
                             bool isSmallScreen = constraints.maxWidth < 700;
-                            return Column(
-                              children: [
-                                Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Expanded(
-                                      flex: 2,
-                                      child: SizedBox(
-                                        height: 240,
-                                        child: EarningsCard(),
+
+                            if (isSmallScreen) {
+                              // Stack cards vertically on small screens
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  SizedBox(height: 16),
+                                  SizedBox(height: 240, child: EarningsCard()),
+                                  const SizedBox(height: 16),
+                                  ConsultantRequests(showAll: false),
+                                  const SizedBox(height: 16),
+                                  OverviewGraph(),
+                                  const SizedBox(height: 16),
+                                  TotalUsersCard(),
+                                  const SizedBox(height: 16),
+                                ],
+                              );
+                            } else {
+                              // Original horizontal layout for larger screens
+                              return Column(
+                                children: [
+                                  Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Expanded(
+                                        flex: 2,
+                                        child: SizedBox(
+                                          height: 240,
+                                          child: EarningsCard(),
+                                        ),
                                       ),
-                                    ),
-                                    SizedBox(width: isSmallScreen ? 8 : 24),
-                                    Expanded(
-                                      flex: 3,
-                                      child: ConsultantRequests(showAll: false),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 24),
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      flex: 1,
-                                      child: OverviewGraph(),
-                                    ),
-                                    SizedBox(width: isSmallScreen ? 8 : 24),
-                                    Expanded(
-                                      flex: 1,
-                                      child: TotalUsersCard(),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            );
+                                      const SizedBox(width: 24),
+                                      Expanded(
+                                        flex: 3,
+                                        child: ConsultantRequests(showAll: false),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 24),
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        flex: 1,
+                                        child: OverviewGraph(),
+                                      ),
+                                      const SizedBox(width: 24),
+                                      Expanded(
+                                        flex: 1,
+                                        child: TotalUsersCard(),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              );
+                            }
                           },
                         ),
                         const SizedBox(height: 32),
-
-                        // User Demographics Section
                         UserDemographicsSection(),
-                        /*
-                        Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(12),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black12,
-                                blurRadius: 6,
-                                offset: Offset(0, 3),
-                              ),
-                            ],
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Container(
-                                width: double.infinity,
-                                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-                                decoration: BoxDecoration(
-                                  color: AppColors.primaryBlue,
-                                  borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-                                ),
-                                child: const Text(
-                                  "Users Demographics",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.all(16),
-                                child: Column(
-                                  children: [
-                                    _buildBarRow("India", 0.65),
-                                    _buildBarRow("Canada", 0.22),
-                                    _buildBarRow("Australia", 0.14),
-                                    _buildBarRow("United Kingdom", 0.03),
-                                    _buildBarRow("United States", 0.08),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-
-                         */
-
                         const SizedBox(height: 40),
                       ],
                     ),
