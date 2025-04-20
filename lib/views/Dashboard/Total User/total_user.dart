@@ -96,10 +96,10 @@ class _TotalUsersCardState extends State<TotalUsersCard> {
 
               Padding(
                 padding: const EdgeInsets.all(12.0),
-                child:  isLoading
-                    ? Center(child: CircularProgressIndicator())
-                    :Column(
-                  children: _isShowingDoctors
+                child: Column(
+                  children: isLoading
+                      ? List.generate(2, (index) => _buildLoadingTile())
+                      : _isShowingDoctors
                       ? _getFilteredDoctors(doctorViewModel)
                       .take(2)
                       .map((doc) => _buildDoctorTile(doc))
@@ -109,7 +109,6 @@ class _TotalUsersCardState extends State<TotalUsersCard> {
                       .map((user) => _buildUserTile(user))
                       .toList(),
                 ),
-
               ),
             ],
           ),
@@ -138,6 +137,27 @@ class _TotalUsersCardState extends State<TotalUsersCard> {
       trailing: Icon(Icons.arrow_forward_ios_rounded, size: 18),
     );
   }
+  Widget _buildLoadingTile() {
+    return ListTile(
+      contentPadding: EdgeInsets.symmetric(vertical: 6),
+      leading: CircleAvatar(
+        backgroundColor: Colors.grey[300],
+        radius: 24,
+      ),
+      title: Container(
+        width: 100,
+        height: 12,
+        color: Colors.grey[300],
+        margin: EdgeInsets.only(bottom: 4),
+      ),
+      subtitle: Container(
+        width: 150,
+        height: 10,
+        color: Colors.grey[200],
+      ),
+    );
+  }
+
 
   // Header for small screen
   Widget _buildSmallScreenHeader(BuildContext context) {

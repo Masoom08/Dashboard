@@ -44,7 +44,62 @@ class _OverviewGraphState extends State<OverviewGraph> {
           return Center(child: CircularProgressIndicator());
         }
 
-        // 👉 Create a list of months from first record to current month
+        // 👉 Handle empty state
+        if (userStats.isEmpty) {
+          return Container(
+            constraints: BoxConstraints(maxWidth: 650),
+            child: Card(
+              color: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Padding(
+                padding: EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Title and Dropdown
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "Overview",
+                          style: TextStyle(
+                              fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                        DropdownButton<String>(
+                          value: filterType,
+                          items: ['Month'].map((e) => DropdownMenuItem<String>(
+                            value: e,
+                            child: Text(e),
+                          )).toList(),
+                          onChanged: (newValue) {
+                            setState(() {
+                              filterType = newValue!;
+                            });
+                          },
+                          underline: Container(),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 16),
+                    Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Text(
+                          "No user registration data available yet.",
+                          style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        }
+
+        // 📅 Data exists: process and display graph
         DateTime getFirstDateFromMapKeys(Map<String, int> map) {
           final keys = map.keys.map((e) {
             final parts = e.split('-');
@@ -58,8 +113,7 @@ class _OverviewGraphState extends State<OverviewGraph> {
           final List<String> result = [];
           DateTime current = DateTime(start.year, start.month);
           while (current.isBefore(end) || current.isAtSameMomentAs(end)) {
-            final label = '${current.month.toString().padLeft(2, '0')}-${current
-                .year}';
+            final label = '${current.month.toString().padLeft(2, '0')}-${current.year}';
             result.add(label);
             current = DateTime(current.year, current.month + 1);
           }
@@ -67,13 +121,8 @@ class _OverviewGraphState extends State<OverviewGraph> {
         }
 
         final DateTime now = DateTime.now();
-        final DateTime startDate = userStats.isNotEmpty
-            ? getFirstDateFromMapKeys(userStats)
-            : DateTime(now.year, now.month); // fallback to current
-
-        final labels = generateMonthLabels(
-            startDate, DateTime(now.year, now.month));
-
+        final DateTime startDate = getFirstDateFromMapKeys(userStats);
+        final labels = generateMonthLabels(startDate, DateTime(now.year, now.month));
         final displayData = {
           for (var label in labels) label: userStats[label] ?? 0,
         };
@@ -89,8 +138,7 @@ class _OverviewGraphState extends State<OverviewGraph> {
           constraints: BoxConstraints(maxWidth: 650),
           child: Card(
             color: Colors.white,
-            shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12)),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
             child: Padding(
               padding: EdgeInsets.all(16),
               child: Column(
@@ -102,16 +150,14 @@ class _OverviewGraphState extends State<OverviewGraph> {
                     children: [
                       Text(
                         "Users Registered Overview",
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                       ),
                       DropdownButton<String>(
                         value: filterType,
-                        items: ['Month'].map((e) =>
-                            DropdownMenuItem<String>(
-                              value: e,
-                              child: Text(e),
-                            )).toList(),
+                        items: ['Month'].map((e) => DropdownMenuItem<String>(
+                          value: e,
+                          child: Text(e),
+                        )).toList(),
                         onChanged: (newValue) {
                           setState(() {
                             filterType = newValue!;
@@ -133,7 +179,7 @@ class _OverviewGraphState extends State<OverviewGraph> {
                             sideTitles: SideTitles(
                               showTitles: true,
                               reservedSize: 40,
-                              interval: yInterval, // ✅ dynamic interval
+                              interval: yInterval,
                               getTitlesWidget: (value, meta) {
                                 return Text(
                                   value.toInt().toString(),
@@ -157,12 +203,8 @@ class _OverviewGraphState extends State<OverviewGraph> {
                               },
                             ),
                           ),
-                          topTitles: AxisTitles(
-                            sideTitles: SideTitles(showTitles: false),
-                          ),
-                          rightTitles: AxisTitles(
-                            sideTitles: SideTitles(showTitles: false),
-                          ),
+                          topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                          rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
                         ),
                         borderData: FlBorderData(show: false),
                         lineBarsData: [
@@ -177,10 +219,10 @@ class _OverviewGraphState extends State<OverviewGraph> {
                               show: true,
                               gradient: LinearGradient(
                                 colors: [
-                                  Color(0xFF45DE5D).withOpacity(0.4), // Top
+                                  Color(0xFF45DE5D).withOpacity(0.4),
                                   Color(0xFFA9EFB4).withOpacity(0.3),
                                   Color(0xFFD3F6D9).withOpacity(0.2),
-                                  Color(0xFFFBFDFB).withOpacity(0.1), // Bottom
+                                  Color(0xFFFBFDFB).withOpacity(0.1),
                                 ],
                                 begin: Alignment.topCenter,
                                 end: Alignment.bottomCenter,
@@ -200,4 +242,5 @@ class _OverviewGraphState extends State<OverviewGraph> {
       },
     );
   }
+
 }

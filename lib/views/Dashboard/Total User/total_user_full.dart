@@ -4,6 +4,7 @@ import '../../../../../models/doctor.dart';
 import '../../../../../theme/colors.dart';
 import '../../../../../viewmodels/doctor_viewmodel.dart';
 import '../../../models/user.dart';
+import '../../../viewmodels/total_users_viewmodel.dart';
 import '../Header.dart';
 import '../sidebar.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -50,8 +51,15 @@ class _TotalUserScreenState extends State<TotalUserScreen> {
   final TextEditingController _paragraphController = TextEditingController();
 
   @override
+  void initState() {
+    super.initState();
+    Future.microtask(() =>
+        Provider.of<TotalUsersViewModel>(context, listen: false).loadUsers());
+  }
+  @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
+    final userViewModel = Provider.of<TotalUsersViewModel>(context);
 
     return ChangeNotifierProvider(
       create: (_) => DoctorViewModel()..fetchDoctors(),
@@ -256,10 +264,12 @@ class _TotalUserScreenState extends State<TotalUserScreen> {
   }
 
   Widget _buildStatsAndSearch() {
+    final userViewModel = Provider.of<TotalUsersViewModel>(context);
+    final doctorViewModel = Provider.of<DoctorViewModel>(context);
     return Row(
       children: [
-        _buildStatCard("Total Users", "10,000"),
-        _buildStatCard("Doctors", "1,000"),
+        _buildStatCard("Total Users", "${userViewModel.userCount}"),
+        _buildStatCard("Doctors", "${doctorViewModel.approvedDoctorsCount}"),
         //_buildStatCard("Orthopedics", "500"),
         const Spacer(),
         SizedBox(
@@ -419,48 +429,31 @@ class _TotalUserScreenState extends State<TotalUserScreen> {
                         if (value == 'Block') {
                           showDialog(
                             context: context,
-                            builder: (_) => Dialog(
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Text('Are you sure you want to block this user?'),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                    children: [
-                                      ElevatedButton(
-                                        onPressed: () {
-                                          // Implement block functionality
-                                          Navigator.pop(context);
-                                        },
-                                        child: const Text('Yes'),
-                                      ),
-                                      ElevatedButton(
-                                        onPressed: () => Navigator.pop(context),
-                                        child: const Text('No'),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
+                            builder: (_) => _buildBlockDialog(context, doc.name, doc.profession),
+                          );
+                        } else if (value == 'View Documents') {
+                          showDialog(
+                            context: context,
+                            builder: (_) => _buildViewDocumentDialog(doc),
+                          );
+                        } else if (value == 'Warn') {
+                          showDialog(
+                            context: context,
+                            builder: (_) => _buildWarnDialog(context),
                           );
                         }
                       },
-                      itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-                        const PopupMenuItem<String>(
-                          value: 'Block',
-                          child: Text('Block'),
-                        ),
-                        const PopupMenuItem<String>(
-                          value: 'Warn',
-                          child: Text('Warn'),
-                        ),
-                        const PopupMenuItem<String>(
-                          value: 'View Documents',
-                          child: Text('View Documents'),
-                        ),
-                      ],
+                      itemBuilder: (BuildContext context) {
+                        return ['View Documents', 'Warn', 'Block']
+                            .map((String choice) {
+                          return PopupMenuItem<String>(
+                            value: choice,
+                            child: Text(choice),
+                          );
+                        }).toList();
+                      },
                     ),
+
                   ),
                 ],
               );
@@ -471,4 +464,234 @@ class _TotalUserScreenState extends State<TotalUserScreen> {
     );
   }
 
+
+  Widget _buildBlockDialog(
+      BuildContext context, String name, String specialization) {
+    return AlertDialog(
+      backgroundColor: Colors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            'Block this user $name ($specialization) Doctor for',
+            textAlign: TextAlign.center,
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+          ),
+          const SizedBox(height: 20),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  _showBlockConfirmationDialog(
+                    context,
+                    name,
+                    specialization,
+                    "1 Week",
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primaryBlue),
+                child:
+                const Text('1 WEEK', style: TextStyle(color: Colors.white)),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  _showBlockConfirmationDialog(
+                    context,
+                    name,
+                    specialization,
+                    "FOREVER",
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primaryBlue),
+                child: const Text('FOREVER',
+                    style: TextStyle(color: Colors.white)),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+  void _showBlockConfirmationDialog(
+      BuildContext context,
+      String name,
+      String specialization,
+      String duration,
+      ) {
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Text(
+              "Confirm Block",
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              "Are you sure you want to block this user $name ($specialization) Doctor $duration?",
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                OutlinedButton(
+                  onPressed: () => Navigator.pop(context),
+                  style: OutlinedButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    side: const BorderSide(color: AppColors.primaryBlue),
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  ),
+                  child: const Text(
+                    "Cancel",
+                    style: TextStyle(color: AppColors.primaryBlue),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text("User blocked for $duration.")),
+                    );
+                    // TODO: Block logic
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primaryBlue,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                  ),
+                  child: const Text(
+                    "Sure",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ],
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+
+
+  Widget _buildWarnDialog(BuildContext context) {
+    return AlertDialog(
+      backgroundColor: Colors.white,
+      title: const Text(
+        'Message To All Users',
+        style: TextStyle(fontWeight: FontWeight.bold),
+      ),
+      content: SizedBox(
+        width: double.maxFinite,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                padding: const EdgeInsets.all(8.0),
+                child: TextField(
+                  controller: _titleController,
+                  maxLines: null,
+                  decoration: const InputDecoration(
+                    hintText: "Title",
+                    border: InputBorder.none,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              Container(
+                height: 200,
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                padding: const EdgeInsets.all(8.0),
+                child: TextField(
+                  controller: _paragraphController,
+                  maxLines: null,
+                  decoration: const InputDecoration(
+                    hintText: "Write Paragraph Here!",
+                    border: InputBorder.none,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text("Cancel"),
+        ),
+        ElevatedButton(
+          onPressed: () {
+            final title = _titleController.text.trim();
+            final paragraph = _paragraphController.text.trim();
+
+            if (title.isNotEmpty && paragraph.isNotEmpty) {
+              Navigator.of(context).pop(); // Close the warn dialog
+              _showSuccessDialog(context); // Show the success dialog
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text("Please fill both fields")),
+              );
+            }
+          },
+          child: const Text("Send"),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildViewDocumentDialog(Doctor doc) {
+    return AlertDialog(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      title: const Text("User Document"),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text("${doc.name}'s Uploaded Document"),
+          const SizedBox(height: 16),
+          Image.network(
+            doc.profilePicUrl ?? "https://via.placeholder.com/150",
+            height: 200,
+            width: 200,
+            fit: BoxFit.cover,
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text("Close"),
+        ),
+      ],
+    );
+  }
 }

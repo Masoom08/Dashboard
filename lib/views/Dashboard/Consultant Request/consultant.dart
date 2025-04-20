@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:cached_network_image/cached_network_image.dart'; // Add this import for caching network images
+import 'package:cached_network_image/cached_network_image.dart';
+
 import '../../../../../models/doctor.dart';
 import '../../../../../theme/colors.dart';
 import '../../../../../viewmodels/doctor_viewmodel.dart';
@@ -19,16 +20,13 @@ class ConsultantRequests extends StatelessWidget {
 
         return Consumer<DoctorViewModel>(
           builder: (context, viewModel, _) {
-            final doctors = viewModel.serviceAgreedDoctors; // Use the filtered list directly
-            if (doctors.isEmpty) {
-              return Padding(
-                padding: const EdgeInsets.all(16),
-                child: Center(child: Text(viewModel.errorMessage.isNotEmpty ? viewModel.errorMessage : 'No doctors found')),
-              );
-            }
+            final doctors = viewModel.serviceAgreedDoctors;
+            final isLoading = viewModel.isLoading ; // Add this flag to your ViewModel
 
-            // Determine which doctors to display based on the 'showAll' flag
-            final List<Doctor> displayedDoctors = showAll ? doctors : doctors.take(2).toList();
+            // Show either all or first two
+            final displayedDoctors = showAll
+                ? doctors
+                : doctors.take(2).toList();
 
             return Card(
               color: Colors.white,
@@ -88,73 +86,125 @@ class ConsultantRequests extends StatelessWidget {
                     ),
                   ),
 
-                  // Doctor List
-                  ...displayedDoctors.map((doctor) {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          // Profile Picture
-                          Container(
-                            width: 48,
-                            height: 48,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: AppColors.primaryBlue,
+                  // Doctor List (Show loading placeholders or actual doctors)
+                  if (isLoading)
+                    ...List.generate(
+                      2,
+                          (_) => Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Container(
+                              width: 48,
+                              height: 48,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.grey[300],
+                              ),
                             ),
-                            child: doctor.profilePicUrl.isNotEmpty
-                                ? CachedNetworkImage(
-                              imageUrl: doctor.profilePicUrl,
-                              imageBuilder: (context, imageProvider) {
-                                return CircleAvatar(backgroundImage: imageProvider);
-                              },
-                              placeholder: (context, url) =>
-                                  Center(child: CircularProgressIndicator()),
-                              errorWidget: (context, url, error) => Center(
+                            SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Container(
+                                    width: 100,
+                                    height: 12,
+                                    color: Colors.grey[300],
+                                    margin: EdgeInsets.only(bottom: 6),
+                                  ),
+                                  Container(
+                                    width: 150,
+                                    height: 12,
+                                    color: Colors.grey[200],
+                                  ),
+                                ],
+                              ),
+                            ),
+                            if (!isSmallScreen)
+                              Container(
+                                width: 80,
+                                height: 36,
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[300],
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                    )
+                  else if (doctors.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Center(child: Text(viewModel.errorMessage.isNotEmpty ? viewModel.errorMessage : 'No doctors found')),
+                    )
+                  else
+                    ...displayedDoctors.map((doctor) {
+                      return Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            // Profile Picture
+                            Container(
+                              width: 48,
+                              height: 48,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: AppColors.primaryBlue,
+                              ),
+                              child: doctor.profilePicUrl.isNotEmpty
+                                  ? CachedNetworkImage(
+                                imageUrl: doctor.profilePicUrl,
+                                imageBuilder: (context, imageProvider) {
+                                  return CircleAvatar(backgroundImage: imageProvider);
+                                },
+                                placeholder: (context, url) => Center(child: CircularProgressIndicator()),
+                                errorWidget: (context, url, error) => Center(
                                   child: Text(
                                     doctor.name.isNotEmpty ? doctor.name[0] : '',
                                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
-                                  )),
-                            )
-                                : Center(
-                              child: Text(
-                                doctor.name.isNotEmpty ? doctor.name[0] : '',
-                                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                                  ),
+                                ),
+                              )
+                                  : Center(
+                                child: Text(
+                                  doctor.name.isNotEmpty ? doctor.name[0] : '',
+                                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                                ),
                               ),
                             ),
-                          ),
-                          SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(doctor.name,
-                                    style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-                                Text(doctor.profession,
-                                    style: TextStyle(fontSize: 12, color: Colors.grey)),
-                              ],
-                            ),
-                          ),
-                          if (!isSmallScreen)
-                            ElevatedButton(
-                              onPressed: () {
-                                showDialog(
-                                  context: context,
-                                  builder: (_) => DoctorVerificationDialog(doctor: doctor),
-                                );
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColors.primaryBlue,
-                                foregroundColor: Colors.white,
-                                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                            SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(doctor.name, style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                                  Text(doctor.profession, style: TextStyle(fontSize: 12, color: Colors.grey)),
+                                ],
                               ),
-                              child: Text("Check form"),
                             ),
-                        ],
-                      ),
-                    );
-                  }).toList(),
+                            if (!isSmallScreen)
+                              ElevatedButton(
+                                onPressed: () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (_) => DoctorVerificationDialog(doctor: doctor),
+                                  );
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.primaryBlue,
+                                  foregroundColor: Colors.white,
+                                  padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                ),
+                                child: Text("Check form"),
+                              ),
+                          ],
+                        ),
+                      );
+                    }).toList(),
                 ],
               ),
             );

@@ -19,6 +19,7 @@ class DoctorViewModel extends ChangeNotifier {
   List<Doctor> get doctors => _doctors;
   List<Doctor> get serviceAgreedDoctors => _serviceAgreedDoctors;
   List<Doctor> get approvedDoctors => _approvedDoctors;
+  int get approvedDoctorsCount => _approvedDoctors.length;
 
   List<Doctor> getDoctorsWithEducationDoc() {
     return _doctors.where((doctor) => doctor.educationDoc.isNotEmpty).toList();
