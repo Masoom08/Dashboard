@@ -82,13 +82,51 @@ class _TotalUsersCardState extends State<TotalUsersCard> {
                     const SizedBox(height: 8),
                     Text("Pending Doctors : ${doctorViewModel.serviceAgreedDoctors.length}", style: _whiteTextStyle), // Updated text
                     const SizedBox(height: 10),
-
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        TextButton(
+                          onPressed: () {
+                            // Your logic here
+                          },
+                          style: _filterBtnStyle,
+                          child: Text("Doctor"),
+                        ),
+                        const SizedBox(height: 6),
+                        Wrap(
+                          spacing: 8.0,
+                          runSpacing: 8.0,
+                          children: [
+                            ...baseCategories.map((category) => _categoryButton(context, category)),
+                            if (_showMore)
+                              DropdownButton<String>(
+                                value: _selectedDepartment,
+                                hint: Text(
+                                  "Select Department",
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                                dropdownColor: Colors.grey[800],
+                                onChanged: (String? newValue) {
+                                  // Your logic here
+                                },
+                                items: allDepartments.map((String value) {
+                                  return DropdownMenuItem<String>(
+                                    value: value,
+                                    child: Text(value),
+                                  );
+                                }).toList(),
+                              ),
+                          ],
+                        ),
+                      ],
+                    ),
                     // Category Filters
                     // Category Filters
                     Wrap(
                       spacing: 10,
                       runSpacing: 8,
-                      children: [
+
+                      /*children: [
                         TextButton(
                           onPressed: () {
                             // Your logic here
@@ -134,7 +172,8 @@ class _TotalUsersCardState extends State<TotalUsersCard> {
                             style: const TextStyle(color: Colors.white),
                           ),
                         ),
-                      ],
+                      ],*/
+
                     ),
 
                   ],
