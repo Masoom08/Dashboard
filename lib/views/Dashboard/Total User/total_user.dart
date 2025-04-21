@@ -93,7 +93,7 @@ class _TotalUsersCardState extends State<TotalUsersCard> {
                           child: Text("Doctor"),
                         ),
                         const SizedBox(height: 6),
-                        Wrap(
+                        /*Wrap(
                           spacing: 8.0,
                           runSpacing: 8.0,
                           children: [
@@ -117,23 +117,16 @@ class _TotalUsersCardState extends State<TotalUsersCard> {
                                 }).toList(),
                               ),
                           ],
-                        ),
-                      ],
-                    ),
+                        ),*/
+                      //],
+                    //),
                     // Category Filters
                     // Category Filters
                     Wrap(
                       spacing: 10,
                       runSpacing: 8,
 
-                      /*children: [
-                        TextButton(
-                          onPressed: () {
-                            // Your logic here
-                          },
-                          style: _filterBtnStyle,
-                          child: Text("Doctor"),
-                        ),
+                      children: [
                         ...baseCategories.map((category) => _categoryButton(context, category)),
                         _showMore
                             ? DropdownButton<String>(
@@ -172,10 +165,11 @@ class _TotalUsersCardState extends State<TotalUsersCard> {
                             style: const TextStyle(color: Colors.white),
                           ),
                         ),
-                      ],*/
+                      ],
 
                     ),
-
+                  ],
+                ),
                   ],
                 ),
               ),
