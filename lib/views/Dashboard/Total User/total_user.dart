@@ -6,9 +6,9 @@ import '../../../../../models/doctor.dart';
 import '../../../../../theme/colors.dart';
 import '../../../../../viewmodels/doctor_viewmodel.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-
 import '../../../viewmodels/total_users_viewmodel.dart';
-import '../../../viewmodels/user_viewmodel.dart'; // Import for cached images
+import '../../../viewmodels/user_viewmodel.dart';
+import 'doctor_search_bar.dart'; // Import for cached images
 
 class TotalUsersCard extends StatefulWidget {
   @override
@@ -18,6 +18,17 @@ class TotalUsersCard extends StatefulWidget {
 class _TotalUsersCardState extends State<TotalUsersCard> {
   bool _showMore = false;
   bool _isShowingDoctors  = true;
+  final TextEditingController _searchController = TextEditingController();
+  final List<String> allDepartments = [
+    "Cardiologists", "General Physician", "Gastroenterologist", "General Surgeon",
+    "Dentist", "Dermatologist", "Pediatrician", "Psychiatrist", "Orthopedics",
+    "Gynecologist", "Ophthalmologist", "Dietitian", "Homeopath", "Neurologist",
+    "Plastic Surgeon", "Diagnostic Centre", "Practologist", "Naturopathy",
+    "Pulmonologist", "Oncologist", "ENT", "Sexologist", "Nephrologist"
+  ];
+
+  String? _selectedDepartment;
+
 
   @override
   void initState() {
@@ -36,12 +47,13 @@ class _TotalUsersCardState extends State<TotalUsersCard> {
 
 
     final List<String> baseCategories = [
-      "Doctors", "Orthopedics", "Cardiology", "Dentists"
+      "Orthopedics", "Cardiologists", "Dentists"
     ];
     final List<String> extraCategories = [
       "Ayurveda", "Unani", "Veterinary", "General Physician"
     ];
     final categories = _showMore ? [...baseCategories, ...extraCategories] : baseCategories;
+    //final TextEditingController _searchController = TextEditingController();
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -72,12 +84,46 @@ class _TotalUsersCardState extends State<TotalUsersCard> {
                     const SizedBox(height: 10),
 
                     // Category Filters
+                    // Category Filters
                     Wrap(
                       spacing: 10,
                       runSpacing: 8,
                       children: [
-                        ...categories.map((category) => _categoryButton(context, category)),
                         TextButton(
+                          onPressed: () {
+                            // Your logic here
+                          },
+                          style: _filterBtnStyle,
+                          child: Text("Doctor"),
+                        ),
+                        ...baseCategories.map((category) => _categoryButton(context, category)),
+                        _showMore
+                            ? DropdownButton<String>(
+                          value: _selectedDepartment,
+                          hint: Text(
+                            "Select Department",
+                            style: TextStyle(color: Colors.white),
+                          ),
+                          dropdownColor: AppColors.primaryBlue,
+                          iconEnabledColor: Colors.white,
+                          underline: SizedBox(),
+                          items: allDepartments.map((String dept) {
+                            return DropdownMenuItem<String>(
+                              value: dept,
+                              child: Text(
+                                dept,
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            );
+                          }).toList(),
+                          onChanged: (value) {
+                            setState(() {
+                              _selectedDepartment = value;
+                              Provider.of<DoctorViewModel>(context, listen: false).setCategory(value ?? '');
+                            });
+                          },
+                        )
+                            : TextButton(
                           onPressed: () {
                             setState(() {
                               _showMore = !_showMore;
@@ -90,10 +136,14 @@ class _TotalUsersCardState extends State<TotalUsersCard> {
                         ),
                       ],
                     ),
+
                   ],
                 ),
               ),
 
+              const SizedBox(height: 12),
+              //DoctorSearchBar(searchController: _searchController),
+              //const SizedBox(height: 6),
               Padding(
                 padding: const EdgeInsets.all(12.0),
                 child: Column(
@@ -116,6 +166,7 @@ class _TotalUsersCardState extends State<TotalUsersCard> {
       },
     );
   }
+
   Widget _buildUserTile(UserModel user) {
     return ListTile(
       contentPadding: EdgeInsets.symmetric(vertical: 6),
@@ -319,8 +370,21 @@ class _TotalUsersCardState extends State<TotalUsersCard> {
         ),
       ),
       title: Text(doctor.name),
-      subtitle: Text("${doctor.profession} • ${doctor.state}"),
-      trailing: Icon(Icons.arrow_forward_ios_rounded, size: 18),
+      subtitle: Text(
+        "${doctor.profession} • ${doctor.state}" +
+            (doctor.departments != null && doctor.departments.isNotEmpty
+                ? " • (${doctor.departments})"
+                : ""),
+      ),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            doctor.email ?? "", // Display email if available, else empty
+            style: TextStyle(fontSize: 12),
+          ),
+        ],
+      ),
     );
   }
 
