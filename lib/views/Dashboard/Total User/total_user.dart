@@ -16,11 +16,12 @@ class TotalUsersCard extends StatefulWidget {
 }
 
 class _TotalUsersCardState extends State<TotalUsersCard> {
+  String _selectedFilter = "Consultant";
   bool _showMore = false;
   bool _isShowingDoctors  = true;
   final TextEditingController _searchController = TextEditingController();
   final List<String> allDepartments = [
-    "Cardiologists", "General Physician", "Gastroenterologist", "General Surgeon",
+    "Cardiologist", "General Physician", "Gastroenterologist", "General Surgeon",
     "Dentist", "Dermatologist", "Pediatrician", "Psychiatrist", "Orthopedics",
     "Gynecologist", "Ophthalmologist", "Dietitian", "Homeopath", "Neurologist",
     "Plastic Surgeon", "Diagnostic Centre", "Practologist", "Naturopathy",
@@ -47,7 +48,7 @@ class _TotalUsersCardState extends State<TotalUsersCard> {
 
 
     final List<String> baseCategories = [
-      "Orthopedics", "Cardiologists", "Dentists"
+      "Orthopedics", "Cardiologist", "Dentist"
     ];
     final List<String> extraCategories = [
       "Ayurveda", "Unani", "Veterinary", "General Physician"
@@ -82,7 +83,8 @@ class _TotalUsersCardState extends State<TotalUsersCard> {
                     const SizedBox(height: 8),
                     Text("Pending Doctors : ${doctorViewModel.serviceAgreedDoctors.length}", style: _whiteTextStyle), // Updated text
                     const SizedBox(height: 10),
-                    Column(
+                    _selectedFilter == "Consultant"
+                        ? Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         TextButton(
@@ -166,10 +168,9 @@ class _TotalUsersCardState extends State<TotalUsersCard> {
                           ),
                         ),
                       ],
-
                     ),
                   ],
-                ),
+                ) : SizedBox.shrink(),
                   ],
                 ),
               ),
@@ -197,6 +198,28 @@ class _TotalUsersCardState extends State<TotalUsersCard> {
           ),
         );
       },
+    );
+  }
+  Widget _categoryButton(BuildContext context, String category) {
+    final bool isSelected = _selectedDepartment == category;
+
+    return TextButton(
+      onPressed: () {
+        setState(() {
+          _selectedDepartment = category;
+          Provider.of<DoctorViewModel>(context, listen: false).setCategory(category);
+        });
+      },
+      style: TextButton.styleFrom(
+        backgroundColor: isSelected ? Colors.white : AppColors.primaryBlue,
+        foregroundColor: isSelected ? AppColors.primaryBlue : Colors.white,
+        side: BorderSide(color: isSelected ? AppColors.primaryBlue:Colors.white ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      ),
+      child: Text(category),
     );
   }
 
@@ -255,29 +278,42 @@ class _TotalUsersCardState extends State<TotalUsersCard> {
           spacing: 8,
           runSpacing: 8,
           children: [
-            ElevatedButton(
+            TextButton(
               onPressed: () {
                 setState(() {
+                  _selectedFilter = "Clients";
                   _isShowingDoctors = false;
                 });
               },
-              child: Text("Clients"),
-              style: _filterBtnStyle.copyWith(
-                backgroundColor: MaterialStateProperty.all(
-                    !_isShowingDoctors ? Colors.white : Colors.grey[300]),
+              style: TextButton.styleFrom(
+                backgroundColor: !_isShowingDoctors ? Colors.white : Colors.transparent,
+                side: BorderSide(color: Colors.white),
+                foregroundColor: !_isShowingDoctors ? AppColors.primaryBlue : Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
               ),
+              child: const Text("Clients"),
             ),
-            ElevatedButton(
+            const SizedBox(width: 8),
+            TextButton(
               onPressed: () {
                 setState(() {
+                  _selectedFilter = "Consultant";
                   _isShowingDoctors = true;
                 });
               },
-              child: Text("Consultants"),
-              style: _filterBtnStyle.copyWith(
-                backgroundColor: MaterialStateProperty.all(
-                    _isShowingDoctors ? Colors.white : Colors.grey[300]),
+              style: TextButton.styleFrom(
+                backgroundColor: _isShowingDoctors ? Colors.white : Colors.transparent,
+                side: BorderSide(color: Colors.white),
+                foregroundColor: _isShowingDoctors ? AppColors.primaryBlue : Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
               ),
+              child: const Text("Consultants"),
             ),
             GestureDetector(
               onTap: () {
@@ -310,24 +346,42 @@ class _TotalUsersCardState extends State<TotalUsersCard> {
         Text("Total Users : ${userViewModel.userCount}", style: _whiteTextStyle),
         Row(
           children: [
-            ElevatedButton(
+            TextButton(
               onPressed: () {
                 setState(() {
+                  _selectedFilter = "Clients";
                   _isShowingDoctors = false;
                 });
               },
-              child: Text("Clients"),
-              style: _filterBtnStyle,
+              style: TextButton.styleFrom(
+                backgroundColor: !_isShowingDoctors ? Colors.white : Colors.transparent,
+                side: BorderSide(color: Colors.white),
+                foregroundColor: !_isShowingDoctors ? AppColors.primaryBlue : Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+              ),
+              child: const Text("Clients"),
             ),
             const SizedBox(width: 8),
-            ElevatedButton(
+            TextButton(
               onPressed: () {
                 setState(() {
+                  _selectedFilter = "Consultant";
                   _isShowingDoctors = true;
                 });
               },
-              child: Text("Consultants"),
-              style: _filterBtnStyle,
+              style: TextButton.styleFrom(
+                backgroundColor: _isShowingDoctors ? Colors.white : Colors.transparent,
+                side: BorderSide(color: Colors.white),
+                foregroundColor: _isShowingDoctors ? AppColors.primaryBlue : Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+              ),
+              child: const Text("Consultants"),
             ),
             const SizedBox(width: 12),
             GestureDetector(
@@ -363,7 +417,7 @@ class _TotalUsersCardState extends State<TotalUsersCard> {
         .where((doctor) => doctor.departments.contains(category))
         .toList();
   }
-
+/*
   // Category filter button
   ElevatedButton _categoryButton(BuildContext context, String category) {
     final doctorViewModel = Provider.of<DoctorViewModel>(context, listen: false);
@@ -375,7 +429,7 @@ class _TotalUsersCardState extends State<TotalUsersCard> {
       style: _filterBtnStyle,
       child: Text(category),
     );
-  }
+  }*/
 
   // Builds individual doctor tile with image fallback
   Widget _buildDoctorTile(Doctor doctor) {
