@@ -159,6 +159,19 @@ class DoctorViewModel extends ChangeNotifier {
     }
   }
 
+  Future<void> rejectedDoctorRequest(String doctorId) async {
+    _setLoading(true);
+    try {
+      await _repository.rejectDoctorRegistrationStatus(doctorId);
+      await fetchDoctors(); // refreshes all lists
+    } catch (e) {
+      _errorMessage = 'Failed to update service agreed status: ${e.toString()}';
+      notifyListeners();
+    } finally {
+      _setLoading(false);
+    }
+  }
+
   Future<Doctor?> getDoctorById(String doctorId) async {
     try {
       return await _repository.fetchDoctorById(doctorId);

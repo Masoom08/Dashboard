@@ -182,7 +182,7 @@ class ConsultantRequests extends StatelessWidget {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(doctor.name, style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
-                                  Text(doctor.profession, style: TextStyle(fontSize: 12, color: Colors.grey)),
+                                  Text("(${doctor.departments[0]}):${doctor.profession}", style: TextStyle(fontSize: 12, color: Colors.grey)),
                                 ],
                               ),
                             ),

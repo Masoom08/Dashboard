@@ -56,6 +56,14 @@ class DoctorRepository {
   Future<void> updateDoctorServiceAgreedStatus(String doctorId) async {
     await _firestore.collection('doctors').doc(doctorId).update({
       'service_agreed': true,
+      'registration_status': 'approved',
+    });
+  }
+
+  Future<void> rejectDoctorRegistrationStatus(String doctorId) async {
+    await _firestore.collection('doctors').doc(doctorId).update({
+      'service_agreed': false,
+      'registration_status': "rejected",
     });
   }
 
@@ -69,6 +77,10 @@ class DoctorRepository {
 
     await Future.forEach(snapshot.docs, (DocumentSnapshot doc) async {
       final data = doc.data() as Map<String, dynamic>;
+
+      // Skip if registration_status is rejected
+      if (data['registration_status'] == 'rejected') return;
+
       final doctorId = doc.id;
 
       final walletDoc = await _firestore.collection('wallets').doc(doctorId).get();

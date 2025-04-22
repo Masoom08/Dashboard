@@ -39,6 +39,12 @@ class _TotalUserScreenState extends State<TotalUserScreen> {
   ];
 
   final List<String> extraDepartments = [
+
+     "General Physician", "Gastroenterologist", "General Surgeon",
+    "Dentist", "Dermatologist", "Pediatrician", "Psychiatrist",
+    "Gynecologist", "Ophthalmologist", "Dietitian", "Homeopath",
+    "Plastic Surgeon", "Diagnostic Centre", "Practologist", "Naturopathy",
+    "Pulmonologist", "Oncologist", "ENT", "Sexologist", "Nephrologist"
     "Ayurveda",
     "Unani",
     "Veterinary",
@@ -376,11 +382,11 @@ class _TotalUserScreenState extends State<TotalUserScreen> {
                         imageUrl: doc.profilePicUrl,
                         imageBuilder: (context, imageProvider) => CircleAvatar(
                           backgroundImage: imageProvider,
-                          radius: 24,
+                          radius: 20,
                         ),
                         placeholder: (context, url) => const SizedBox(
-                          height: 48,
-                          width: 48,
+                          height: 30,
+                          width: 30,
                           child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
                         ),
                         errorWidget: (context, url, error) => CircleAvatar(
@@ -415,8 +421,8 @@ class _TotalUserScreenState extends State<TotalUserScreen> {
                       ),
                     ],
                   )),
-                  DataCell(Text(doc.balance.toString() != '0' ? doc.balance.toString() : 'N/A')), // Show 'N/A' if balance is 0
-                  DataCell(Text((doc.balance != 0 ? (doc.balance * 0.05).toString() : '0'))), // Show '0' if balance is 0
+                  DataCell(Text(doc.balance.toString() != '0' ? doc.balance.toStringAsFixed(2) : '00.00')), // Show 'N/A' if balance is 0
+                  DataCell(Text((doc.balance != 0 ? (doc.balance * 0.05).toStringAsFixed(2) : '00.00'))), // Show '0' if balance is 0
                   DataCell(Text(doc.email)),
                   DataCell(Text(doc.phone)),
                   DataCell(

@@ -1,24 +1,36 @@
 import 'package:flutter/material.dart';
-
-import 'package:dashboardN/viewmodels/doctor_viewmodel.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+import 'package:dashboardN/viewmodels/doctor_viewmodel.dart';
 import '../../../../../../models/doctor.dart';
 import '../../../../../../theme/colors.dart';
-
+// ... all your imports remain unchanged
 
 class DoctorVerificationDialog extends StatefulWidget {
   final Doctor doctor;
 
-  DoctorVerificationDialog({required this.doctor});
+  const DoctorVerificationDialog({super.key, required this.doctor});
 
   @override
-  _DoctorVerificationDialogState createState() =>
-      _DoctorVerificationDialogState();
+  State<DoctorVerificationDialog> createState() => _DoctorVerificationDialogState();
 }
 
 class _DoctorVerificationDialogState extends State<DoctorVerificationDialog> {
-  Map<String, String> statusMap = {};
+  static const accepted = "Accepted";
+  static const declined = "Declined";
+
+  late Map<String, String> statusMap;
+
+  @override
+  void initState() {
+    super.initState();
+    statusMap = {
+      "education": "",
+      "registration": "",
+      "identity": "",
+    };
+  }
 
   void updateStatus(String key, String status) {
     setState(() {
@@ -26,41 +38,43 @@ class _DoctorVerificationDialogState extends State<DoctorVerificationDialog> {
     });
   }
 
-  bool get isAllAccepted =>
-      statusMap["education"] == "Accepted" &&
-          statusMap["registration"] == "Accepted" &&
-          statusMap["identity"] == "Accepted";
+  bool get isAllAccepted => statusMap.values.every((status) => status == accepted);
 
-  Widget buildStatusButton(String key) {
-    if (statusMap.containsKey(key)) {
+  Widget buildStatusButton(String key , DoctorViewModel doctorViewModel , Doctor doctor) {
+    final currentStatus = statusMap[key] ?? "";
+
+    if (currentStatus.isNotEmpty) {
       return Text(
-        statusMap[key]!,
+        currentStatus,
         style: TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.bold,
-          color: statusMap[key] == "Accepted"
-              ? AppColors.Green
-              : AppColors.Red,
+          color: currentStatus == accepted ? AppColors.Green : AppColors.Red,
         ),
       );
     }
 
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         Expanded(
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.Red),
-            onPressed: () => updateStatus(key, "Declined"),
-            child: Text("Decline", style: TextStyle(color: Colors.white)),
+            onPressed: () async {
+              updateStatus(key, declined);
+              await doctorViewModel.rejectedDoctorRequest(doctor.userId);
+              Navigator.pop(context);
+            },
+            child: const Text("Decline", style: TextStyle(color: Colors.white)),
           ),
         ),
-        SizedBox(width: 10),
+        const SizedBox(width: 10),
         Expanded(
           child: ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.Green),
-            onPressed: () => updateStatus(key, "Accepted"),
-            child: Text("Accept", style: TextStyle(color: Colors.white)),
+            onPressed: () async {
+              updateStatus(key, accepted);
+            },
+            child: const Text("Accept", style: TextStyle(color: Colors.white)),
           ),
         ),
       ],
@@ -68,117 +82,160 @@ class _DoctorVerificationDialogState extends State<DoctorVerificationDialog> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    final doctorViewModel = Provider.of<DoctorViewModel>(context, listen: false);
+  Widget build(BuildContext context ) {
+    final doctorViewModel = context.read<DoctorViewModel>();
+    final doctor = widget.doctor;
 
     return Dialog(
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       backgroundColor: AppColors.softWhite,
-      insetPadding: EdgeInsets.all(20),
+      insetPadding: const EdgeInsets.all(20),
       child: Padding(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Close Button
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                IconButton(
-                  icon: Icon(Icons.close, color: AppColors.black),
-                  onPressed: () => Navigator.pop(context),
-                )
-              ],
+            Align(
+              alignment: Alignment.topRight,
+              child: IconButton(
+                icon: const Icon(Icons.close, color: AppColors.black),
+                onPressed: () => Navigator.pop(context),
+              ),
             ),
-            // Doctor Info
             Row(
               children: [
                 CircleAvatar(
                   radius: 28,
-                  backgroundImage: NetworkImage(widget.doctor.profilePicUrl),
+                  backgroundColor: AppColors.grey,
+                  backgroundImage: doctor.profilePicUrl.isNotEmpty
+                      ? NetworkImage(doctor.profilePicUrl)
+                      : null,
+                  child: doctor.profilePicUrl.isEmpty
+                      ? Text(
+                    doctor.name.isNotEmpty ? doctor.name[0].toUpperCase() : "?",
+                    style: const TextStyle(fontSize: 20, color: Colors.white),
+                  )
+                      : null,
                 ),
-                SizedBox(width: 10),
+                const SizedBox(width: 10),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(widget.doctor.name,
-                        style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.black)),
-                    Text("(${widget.doctor.profession})",
-                        style: TextStyle(fontSize: 14, color: AppColors.grey)),
+                    Text(
+                      doctor.name,
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.black,
+                      ),
+                    ),
+                    Text(
+                      doctor.departments.isNotEmpty ? doctor.departments[0] : "N/A",
+                      style: const TextStyle(fontSize: 14, color: AppColors.grey),
+                    ),
                   ],
                 ),
               ],
             ),
-            SizedBox(height: 20),
-            // Three Sections
+            const SizedBox(height: 20),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Expanded(
                   child: buildInfoCard(
                     title: "Education Qualification",
-                    info: [],
-                    customContent: buildQualificationDoc(
-                      '${widget.doctor.educationDoc.isNotEmpty ? widget.doctor.educationDoc : 'Not available'}',
-                      widget.doctor.educationDocUrl,
+                    customContent: buildDocDetails(
+                      titleLabels: const ['Degree', 'College/University', 'Year'],
+                      docText: doctor.educationDoc ?? '',
+                      label: "Qualification Document",
                     ),
-
                     key: "education",
                     color: AppColors.blueTint,
-
+                    doctorViewModel: doctorViewModel,
+                    doctor: doctor,
                   ),
                 ),
-                SizedBox(width: 15),
+                const SizedBox(width: 15),
                 Expanded(
                   child: buildInfoCard(
                     title: "Medical Registration",
-                    info: [],
-                    customContent: buildMedicalRegistration(
-                      '${widget.doctor.medicalProof.isNotEmpty ? widget.doctor.medicalProof : 'Not available'}',
-                      widget.doctor.medicalProofUrl,
+                    customContent: buildDocDetails(
+                      titleLabels: const ['Registration Number', 'Council', 'Year'],
+                      docText: doctor.medicalProof ?? '',
+                      label: "Registration Document",
                     ),
                     key: "registration",
                     color: AppColors.blueTint,
+                    doctorViewModel: doctorViewModel,
+                    doctor: doctor,
                   ),
                 ),
-                SizedBox(width: 15),
+                const SizedBox(width: 15),
                 Expanded(
                   child: buildInfoCard(
                     title: "Identity Proof",
-                    info: [],
-                    customContent: buildIdProof(
-                      '${widget.doctor.idUrl.isNotEmpty ? widget.doctor.idUrl : 'Not available'}',
-                      widget.doctor.idUrl,
+                    customContent: doctor.idUrl.isNotEmpty
+                        ? GestureDetector(
+                      onTap: () {
+                        showDialog(
+                          context: context,
+                          builder: (_) => Dialog(
+                            child: InteractiveViewer(
+                              child: Image.network(
+                                doctor.idUrl,
+                                errorBuilder: (_, __, ___) => Image.asset(
+                                  'assets/img.png',
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(6),
+                        child: Image.network(
+                          doctor.idUrl,
+                          height: 100,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => Image.asset(
+                            'assets/img.png',
+                            height: 100,
+                            width: double.infinity,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                    )
+                        : Image.asset(
+                      'assets/img.png',
+                      height: 100,
+                      width: double.infinity,
+                      fit: BoxFit.cover,
                     ),
                     key: "identity",
                     color: AppColors.blueTint,
+                    doctorViewModel: doctorViewModel,
+                    doctor: doctor,
                   ),
                 ),
               ],
             ),
-            SizedBox(height: 25),
-
-            // Show only if all sections accepted
+            const SizedBox(height: 25),
             if (isAllAccepted)
-              Center(
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.LightGreen,
-                    padding:
-                    EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                  ),
-                  onPressed: () async {
-                    await doctorViewModel.updateServiceAgreedStatus(widget.doctor.userId);
-                    Navigator.pop(context);
-                  },
-                  child: Text("Accept Applicant",
-                      style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold)),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.LightGreen,
+                  padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                ),
+                onPressed: () async {
+                  await doctorViewModel.updateServiceAgreedStatus(doctor.userId);
+                  Navigator.pop(context);
+                },
+                child: const Text(
+                  "Accept Applicant",
+                  style: TextStyle(fontSize: 16, color: Colors.white, fontWeight: FontWeight.bold),
                 ),
               ),
           ],
@@ -187,202 +244,54 @@ class _DoctorVerificationDialogState extends State<DoctorVerificationDialog> {
     );
   }
 
-  Widget buildQualificationDoc(String docText, String docUrl) {
-    // Split the input text into parts using commas
+  Widget buildDocDetails({
+    required List<String> titleLabels,
+    required String docText,
+    required String label,
+  }) {
     final parts = docText.split(',').map((e) => e.trim()).toList();
 
-    // Ensure we have exactly 3 parts for Degree, College, and Year
-    final degree = parts.length > 0 ? parts[0] : 'Not available';
-    final college = parts.length > 1 ? parts[1] : 'Not available';
-    final year = parts.length > 2 ? parts[2] : 'Not available';
-
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: const EdgeInsets.only(top: 4.0),
-          child: Text('Degree: $degree'),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(top: 4.0),
-          child: Text('College: $college'),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(top: 4.0),
-          child: Text('Year: $year'),
-        ),
-        SizedBox(height: 10),
-        // Add the document URL if it's available
-        docUrl.isNotEmpty
-            ? Padding(
-          padding: const EdgeInsets.only(top: 8.0),
-          child: GestureDetector(
-            onTap: () async{
-              final uri = Uri.parse(docUrl);
-              if (await canLaunchUrl(uri)) {
-              await launchUrl(uri, mode: LaunchMode.externalApplication);
-              } else {
-              // Optionally show an error snackbar or alert
-              debugPrint('Could not launch $docUrl');
-              }
-            },
-            child: RichText(
-              text: TextSpan(
-                style: DefaultTextStyle.of(context).style,
-                children: [
-                  TextSpan(
-                    text: 'Qualification Document: ',
-                    style: TextStyle(
-                      color: AppColors.black,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  TextSpan(
-                    text: docUrl,
-                    style: TextStyle(
-                      color: Colors.blue,
-                      fontWeight: FontWeight.w500,
-                      decoration: TextDecoration.underline,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        )
-            : Text(
-          'Qualification Document: Not available',
-          style: TextStyle(color: AppColors.grey),
-        ),
-        SizedBox(height: 10),
+        for (var i = 0; i < titleLabels.length; i++)
+          Text('${titleLabels[i]}: ${parts.length > i ? parts[i] : "Not available"}'),
+        const SizedBox(height: 8),
       ],
     );
   }
 
-  Widget buildIdProof(String docName, String? docUrl) {
-    final isAvailable = docUrl != null && docUrl.isNotEmpty;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          "Document:",
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 14,
-            color: AppColors.black,
-          ),
+  Widget buildDocumentLink(String label, String? url) {
+    if (url != null && url.isNotEmpty) {
+      return TextButton(
+        onPressed: () async {
+          final uri = Uri.parse(url);
+          if (await canLaunchUrl(uri)) {
+            await launchUrl(uri, mode: LaunchMode.externalApplication);
+          } else {
+            debugPrint("Could not launch $url");
+          }
+        },
+        child: Text(
+          '$label: $url',
+          style: const TextStyle(color: AppColors.primaryBlue, decoration: TextDecoration.underline),
         ),
-        SizedBox(height: 6),
-        isAvailable
-            ? GestureDetector(
-          onTap: () async {
-            if (await canLaunchUrl(Uri.parse(docUrl!))) {
-              await launchUrl(Uri.parse(docUrl));
-            }
-          },
-          child: Text(
-            docName,
-            style: TextStyle(
-              color: AppColors.primaryBlue,
-              decoration: TextDecoration.underline,
-            ),
-          ),
-        )
-            : Text(
-          "Not available",
-          style: TextStyle(
-            color: AppColors.grey,
-            fontStyle: FontStyle.italic,
-          ),
-        ),
-      ],
-    );
+      );
+    } else {
+      return Text('$label: Not available', style: const TextStyle(color: AppColors.grey));
+    }
   }
-
-
-  Widget buildMedicalRegistration(String docText, String docUrl) {
-    // Split the input text into parts using commas
-    final parts = docText.split(',').map((e) => e.trim()).toList();
-
-    // Ensure we have exactly 3 parts for Degree, College, and Year
-    final number = parts.length > 0 ? parts[0] : 'Not available';
-    final council = parts.length > 1 ? parts[1] : 'Not available';
-    final year = parts.length > 2 ? parts[2] : 'Not available';
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.only(top: 4.0),
-          child: Text('Registration Number: $number'),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(top: 4.0),
-          child: Text('Registration Council: $council'),
-        ),
-        Padding(
-          padding: const EdgeInsets.only(top: 4.0),
-          child: Text('Registration Year(YYYY): $year'),
-        ),
-        SizedBox(height: 10),
-        // Add the document URL if it's available
-        docUrl.isNotEmpty
-            ? Padding(
-          padding: const EdgeInsets.only(top: 8.0),
-          child: GestureDetector(
-            onTap: () async{
-              final uri = Uri.parse(docUrl);
-              if (await canLaunchUrl(uri)) {
-                await launchUrl(uri, mode: LaunchMode.externalApplication);
-              } else {
-                // Optionally show an error snackbar or alert
-                debugPrint('Could not launch $docUrl');
-              }
-            },
-            child: RichText(
-              text: TextSpan(
-                style: DefaultTextStyle.of(context).style,
-                children: [
-                  TextSpan(
-                    text: 'Qualification Document: ',
-                    style: TextStyle(
-                      color: AppColors.black,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  TextSpan(
-                    text: docUrl,
-                    style: TextStyle(
-                      color: Colors.blue,
-                      fontWeight: FontWeight.w500,
-                      decoration: TextDecoration.underline,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        )
-            : Text(
-          'Qualification Document: Not available',
-          style: TextStyle(color: AppColors.grey),
-        ),
-        SizedBox(height: 10),
-      ],
-    );
-  }
-
 
   Widget buildInfoCard({
     required String title,
-    required List<String> info,
-    Widget? customContent,
+    required Widget customContent,
     required String key,
     required Color color,
+    required DoctorViewModel doctorViewModel,
+    required Doctor doctor
   }) {
     return Container(
-      padding: EdgeInsets.all(12),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: color,
         borderRadius: BorderRadius.circular(10),
@@ -390,80 +299,18 @@ class _DoctorVerificationDialogState extends State<DoctorVerificationDialog> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title,
-              style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.black)),
-          SizedBox(height: 5),
-          ...info.map(
-                  (line) => Text(line, style: TextStyle(color: AppColors.grey))),
-          SizedBox(height: 10),
-          if (customContent != null) customContent,
-          buildStatusButton(key),
-        ],
-      ),
-    );
-  }
-
-  Widget buildImageCard({
-    required String title,
-    required String key,
-    required String imagePath,
-  }) {
-    return Container(
-      padding: EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: AppColors.lightBlue,
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(title,
-              style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.black)),
-          SizedBox(height: 8),
-          GestureDetector(
-            onTap: () {
-              showDialog(
-                context: context,
-                builder: (_) => Dialog(
-                  backgroundColor: Colors.black,
-                  insetPadding: EdgeInsets.all(10),
-                  child: Stack(
-                    children: [
-                      InteractiveViewer(
-                        minScale: 0.5,
-                        maxScale: 4,
-                        child: Image.asset(imagePath, fit: BoxFit.contain),
-                      ),
-                      Positioned(
-                        top: 10,
-                        right: 10,
-                        child: IconButton(
-                          icon: Icon(Icons.close, color: Colors.white),
-                          onPressed: () => Navigator.pop(context),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: SizedBox(
-                height: 80,
-                width: double.infinity,
-                child: Image.asset(imagePath, fit: BoxFit.cover),
-              ),
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: AppColors.black,
             ),
           ),
-          SizedBox(height: 10),
-          buildStatusButton(key),
+          const SizedBox(height: 10),
+          customContent,
+          const SizedBox(height: 10),
+          buildStatusButton(key , doctorViewModel , doctor),
         ],
       ),
     );

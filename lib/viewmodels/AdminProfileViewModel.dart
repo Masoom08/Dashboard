@@ -114,7 +114,7 @@ class AdminProfileViewModel extends ChangeNotifier {
 
       final uploadTaskSnapshot = await ref
           .putData(imageBytes!, metadata)
-          .timeout(const Duration(seconds: 15));
+          .timeout(const Duration(seconds: 120));
 
       final downloadUrl = await uploadTaskSnapshot.ref.getDownloadURL();
       return downloadUrl;

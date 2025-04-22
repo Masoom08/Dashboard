@@ -78,11 +78,8 @@ class _TotalUsersCardState extends State<TotalUsersCard> {
                   children: [
                     // Responsive Top Row
                     isSmall
-                        ? _buildSmallScreenHeader(context,)
-                        : _buildLargeScreenHeader(context,),
-                    const SizedBox(height: 8),
-                    Text("Pending Doctors : ${doctorViewModel.serviceAgreedDoctors.length}", style: _whiteTextStyle), // Updated text
-                    const SizedBox(height: 10),
+                        ? _buildSmallScreenHeader(context,_selectedDepartment)
+                        : _buildLargeScreenHeader(context,_selectedDepartment),
                     _selectedFilter == "Consultant"
                         ? Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -267,13 +264,23 @@ class _TotalUsersCardState extends State<TotalUsersCard> {
 
 
   // Header for small screen
-  Widget _buildSmallScreenHeader(BuildContext context) {
+  Widget _buildSmallScreenHeader(BuildContext context , String? selectedDepartment) {
     final userViewModel = Provider.of<TotalUsersViewModel>(context);
+    final doctorViewModel = Provider.of<DoctorViewModel>(context);
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text("Total Users : ${userViewModel.userCount}", style: _whiteTextStyle),
-        const SizedBox(height: 8),
+        Text(
+          "Total Users: ${userViewModel.userCount + doctorViewModel.doctors.length}",
+          style: _whiteTextStyle,
+        ),
+        const SizedBox(height: 4),
+        Text(
+          "Doctors: ${doctorViewModel.doctors.length}",
+          style: _whiteTextStyle,
+        ),
+        const SizedBox(height: 12),
         Wrap(
           spacing: 8,
           runSpacing: 8,
@@ -296,7 +303,6 @@ class _TotalUsersCardState extends State<TotalUsersCard> {
               ),
               child: const Text("Clients"),
             ),
-            const SizedBox(width: 8),
             TextButton(
               onPressed: () {
                 setState(() {
@@ -337,13 +343,42 @@ class _TotalUsersCardState extends State<TotalUsersCard> {
     );
   }
 
+
   // Header for large screen
-  Widget _buildLargeScreenHeader(BuildContext context) {
+  Widget _buildLargeScreenHeader(BuildContext context , String? selectedDepartment) {
     final userViewModel = Provider.of<TotalUsersViewModel>(context);
+    final doctorViewModel = Provider.of<DoctorViewModel>(context);
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text("Total Users : ${userViewModel.userCount}", style: _whiteTextStyle),
+        // Left side: stacked texts
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "Total Users : ${userViewModel.userCount + doctorViewModel.doctors.length}",
+              style: _whiteTextStyle,
+            ),
+            SizedBox(height: 4),
+            Text(
+              "Doctor: ${doctorViewModel.doctors.length}",
+              style: _whiteTextStyle,
+            ),
+            SizedBox(height: 4),
+            if (selectedDepartment != null) ...[
+              Text(
+                "$selectedDepartment: ${_getFilteredDoctors(doctorViewModel).length}",
+                style: _whiteTextStyle,
+              ),
+              SizedBox(height: 4),
+            ],
+          ],
+
+        ),
+
+        // Right side: filters and link
         Row(
           children: [
             TextButton(
@@ -406,6 +441,7 @@ class _TotalUsersCardState extends State<TotalUsersCard> {
     );
   }
 
+
   // Returns the filtered list of doctors based on selected category
   List<Doctor> _getFilteredDoctors(DoctorViewModel doctorViewModel) {
     final pendingDoctors = doctorViewModel.approvedDoctors;
@@ -458,9 +494,8 @@ class _TotalUsersCardState extends State<TotalUsersCard> {
       ),
       title: Text(doctor.name),
       subtitle: Text(
-        "${doctor.profession} • ${doctor.state}" +
-            (doctor.departments != null && doctor.departments.isNotEmpty
-                ? " • (${doctor.departments})"
+                    (doctor.departments != null && doctor.departments.isNotEmpty
+                ? " • (${doctor.departments[0]})"
                 : ""),
       ),
       trailing: Row(
