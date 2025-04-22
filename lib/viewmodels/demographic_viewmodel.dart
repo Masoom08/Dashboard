@@ -20,12 +20,18 @@ class DemographicsViewModel extends ChangeNotifier {
       Map<String, int> stateCounts = {};
 
       for (var user in users) {
-        print("User State: ${user.state}"); // Debugging line
-        String state = user.state;
+        String state = (user.state == null || user.state.trim().isEmpty) ? "Others" : user.state;
+        print("User State: $state"); // Updated debug output
         stateCounts[state] = (stateCounts[state] ?? 0) + 1;
       }
+      final sortedEntries = stateCounts.entries.toList()
+        ..sort((a, b) {
+          if (a.key == "Others") return 1;
+          if (b.key == "Others") return -1;
+          return a.key.compareTo(b.key);
+        });
 
-      demographics = stateCounts.entries
+      demographics = sortedEntries
           .map((entry) => Demographic(place: entry.key, count: entry.value))
           .toList();
       print("Demographics: $demographics");
